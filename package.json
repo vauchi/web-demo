@@ -1,0 +1,22 @@
+{
+  "name": "vauchi-web-demo",
+  "version": "0.5.0",
+  "private": true,
+  "description": "Vauchi web demo — WASM-powered contact card exchange",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "build:wasm": "wasm-pack build wasm --target web --features crypto-wasm",
+    "preview": "vite preview",
+    "test": "vitest"
+  },
+  "dependencies": {
+    "solid-js": "^1.9.0"
+  },
+  "devDependencies": {
+    "vite": "^6.0.0",
+    "vite-plugin-solid": "^2.10.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.0.0"
+  }
+}
