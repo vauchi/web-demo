@@ -1,0 +1,46 @@
+# SPDX-FileCopyrightText: 2026 Mattia Egloff <mattia.egloff@pm.me>
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+stages:
+  - build-wasm
+  - build-web
+  - test
+  - deploy
+
+build:wasm:
+  stage: build-wasm
+  script:
+    - cd wasm
+    - wasm-pack build --target web --features crypto-wasm
+  artifacts:
+    paths:
+      - wasm/pkg/
+  tags: [linux]
+
+build:web:
+  stage: build-web
+  script:
+    - npm ci
+    - npm run build
+  artifacts:
+    paths:
+      - dist/
+  tags: [linux]
+
+test:
+  stage: test
+  script:
+    - npm ci
+    - npm test
+  tags: [linux]
+
+pages:
+  stage: deploy
+  script:
+    - mv dist public
+  artifacts:
+    paths:
+      - public
+  only:
+    - main
+  tags: [linux]
