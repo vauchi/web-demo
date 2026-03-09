@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Mattia Egloff <mattia.egloff@pm.me>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import { Show } from "solid-js";
+import { createSignal, For, Show } from "solid-js";
 
 interface Props {
   id: string;
@@ -13,22 +13,60 @@ interface Props {
 }
 
 export function PinInputComponent(props: Props) {
-  const onChange = (value: string) => {
-    props.onAction(JSON.stringify({ TextChanged: { component_id: props.id, value } }));
+  const [digits, setDigits] = createSignal<string[]>(Array(props.length).fill(""));
+
+  const fireAction = (newDigits: string[]) => {
+    const value = newDigits.join("");
+    props.onAction(JSON.stringify({
+      TextChanged: { component_id: props.id, value }
+    }));
+  };
+
+  const handleInput = (index: number, e: InputEvent) => {
+    const input = e.target as HTMLInputElement;
+    const char = input.value.slice(-1);
+    const newDigits = [...digits()];
+    newDigits[index] = char;
+    setDigits(newDigits);
+    fireAction(newDigits);
+
+    // Auto-advance to next input
+    if (char && index < props.length - 1) {
+      const next = input.parentElement?.querySelector<HTMLInputElement>(
+        `input:nth-child(${index + 2})`
+      );
+      next?.focus();
+    }
+  };
+
+  const handleKeyDown = (index: number, e: KeyboardEvent) => {
+    if (e.key === "Backspace" && !digits()[index] && index > 0) {
+      const prev = (e.target as HTMLElement).parentElement?.querySelector<HTMLInputElement>(
+        `input:nth-child(${index})`
+      );
+      prev?.focus();
+    }
   };
 
   return (
-    <div class="pin-input">
-      <label for={props.id}>{props.label}</label>
-      <input
-        id={props.id}
-        type={props.masked ? "password" : "text"}
-        maxLength={props.length}
-        inputMode="numeric"
-        onInput={(e) => onChange(e.currentTarget.value)}
-      />
+    <div class="component pin-input-container">
+      <label>{props.label}</label>
+      <div class="pin-input">
+        <For each={Array.from({ length: props.length }, (_, i) => i)}>
+          {(i) => (
+            <input
+              type={props.masked ? "password" : "text"}
+              inputMode="numeric"
+              maxLength={1}
+              value={digits()[i] ?? ""}
+              onInput={(e) => handleInput(i, e)}
+              onKeyDown={(e) => handleKeyDown(i, e)}
+            />
+          )}
+        </For>
+      </div>
       <Show when={props.validation_error}>
-        <span class="error">{props.validation_error}</span>
+        <span class="validation-error">{props.validation_error}</span>
       </Show>
     </div>
   );

@@ -25,12 +25,15 @@ export function TextInputComponent(props: Props) {
     }
   };
 
-  const onChange = (value: string) => {
-    props.onAction(JSON.stringify({ TextChanged: { component_id: props.id, value } }));
+  const handleInput = (e: InputEvent) => {
+    const value = (e.target as HTMLInputElement).value;
+    props.onAction(JSON.stringify({
+      TextChanged: { component_id: props.id, value }
+    }));
   };
 
   return (
-    <div class="text-input">
+    <div class="component text-input">
       <label for={props.id}>{props.label}</label>
       <input
         id={props.id}
@@ -38,10 +41,10 @@ export function TextInputComponent(props: Props) {
         value={props.value}
         placeholder={props.placeholder ?? ""}
         maxLength={props.max_length ?? undefined}
-        onInput={(e) => onChange(e.currentTarget.value)}
+        onInput={handleInput}
       />
       <Show when={props.validation_error}>
-        <span class="error">{props.validation_error}</span>
+        <span class="validation-error">{props.validation_error}</span>
       </Show>
     </div>
   );

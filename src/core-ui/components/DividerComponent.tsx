@@ -2,5 +2,5 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 export function DividerComponent() {
-  return <hr class="divider" />;
+  return <hr class="component divider" />;
 }

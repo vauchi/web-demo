@@ -12,21 +12,25 @@ interface Props {
 
 export function ConfirmationDialogComponent(props: Props) {
   const onConfirm = () => {
-    props.onAction(JSON.stringify({ ActionPressed: { action_id: `${props.id}_confirm` } }));
+    props.onAction(JSON.stringify({
+      ActionPressed: { action_id: `${props.id}_confirm` }
+    }));
   };
 
   const onCancel = () => {
-    props.onAction(JSON.stringify({ ActionPressed: { action_id: `${props.id}_cancel` } }));
+    props.onAction(JSON.stringify({
+      ActionPressed: { action_id: `${props.id}_cancel` }
+    }));
   };
 
   return (
-    <div class="confirmation-dialog">
-      <h4>{props.title}</h4>
-      <p>{props.message}</p>
+    <div class="component confirmation-dialog">
+      <h4 class="dialog-title">{props.title}</h4>
+      <p class="dialog-message">{props.message}</p>
       <div class="dialog-actions">
-        <button class="action-btn action-secondary" onClick={onCancel}>Cancel</button>
+        <button class="btn-cancel" onClick={onCancel}>Cancel</button>
         <button
-          class={`action-btn ${props.destructive ? "action-destructive" : "action-primary"}`}
+          class={props.destructive ? "btn-destructive" : "btn-confirm"}
           onClick={onConfirm}
         >
           {props.confirm_text}

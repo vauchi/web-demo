@@ -13,17 +13,23 @@ interface Props {
 
 export function InfoPanelComponent(props: Props) {
   return (
-    <div class="info-panel">
-      <Show when={props.icon}><span class="icon">{props.icon}</span></Show>
-      <h4>{props.title}</h4>
-      <For each={props.items}>
-        {(item) => (
-          <div class="info-item">
-            <span class="info-label">{item.label}</span>
-            <span class="info-value">{item.value}</span>
-          </div>
-        )}
-      </For>
+    <div class="component info-panel">
+      <div class="info-panel-header">
+        <Show when={props.icon}>
+          <span class="info-panel-icon">{props.icon}</span>
+        </Show>
+        <h4 class="info-panel-title">{props.title}</h4>
+      </div>
+      <div class="info-panel-items">
+        <For each={props.items}>
+          {(item) => (
+            <div class="info-item">
+              <span class="info-label">{item.label}</span>
+              <span class="info-value">{item.value}</span>
+            </div>
+          )}
+        </For>
+      </div>
     </div>
   );
 }

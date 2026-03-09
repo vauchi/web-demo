@@ -12,19 +12,23 @@ interface Props {
 
 export function ActionListComponent(props: Props) {
   const onSelect = (itemId: string) => {
-    props.onAction(JSON.stringify({ ListItemSelected: { component_id: props.id, item_id: itemId } }));
+    props.onAction(JSON.stringify({
+      ListItemSelected: { component_id: props.id, item_id: itemId }
+    }));
   };
 
   return (
-    <div class="action-list">
+    <div class="component action-list">
       <For each={props.items}>
         {(item) => (
           <div
-            class={`action-list-item ${item.destructive ? "destructive" : ""}`}
+            class={`action-item ${item.destructive ? "action-destructive" : ""}`}
             onClick={() => onSelect(item.id)}
           >
-            <Show when={item.icon}><span class="icon">{item.icon}</span></Show>
-            <span>{item.label}</span>
+            <Show when={item.icon}>
+              <span class="action-icon">{item.icon}</span>
+            </Show>
+            <span class="action-label">{item.label}</span>
           </div>
         )}
       </For>

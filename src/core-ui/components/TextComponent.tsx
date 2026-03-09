@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Mattia Egloff <mattia.egloff@pm.me>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+import { Match, Switch } from "solid-js";
 import type { TextStyle } from "../../types/core";
 
 interface Props {
@@ -10,14 +11,20 @@ interface Props {
 }
 
 export function TextComponent(props: Props) {
-  const tag = () => {
-    switch (props.style) {
-      case "Title": return "h3";
-      case "Subtitle": return "h4";
-      case "Caption": return "small";
-      default: return "p";
-    }
-  };
-
-  return <p class={`text text-${props.style.toLowerCase()}`}>{props.content}</p>;
+  return (
+    <Switch>
+      <Match when={props.style === "Title"}>
+        <h1 class="text text-title">{props.content}</h1>
+      </Match>
+      <Match when={props.style === "Subtitle"}>
+        <h3 class="text text-subtitle">{props.content}</h3>
+      </Match>
+      <Match when={props.style === "Caption"}>
+        <small class="text text-caption">{props.content}</small>
+      </Match>
+      <Match when={props.style === "Body"}>
+        <p class="text text-body">{props.content}</p>
+      </Match>
+    </Switch>
+  );
 }

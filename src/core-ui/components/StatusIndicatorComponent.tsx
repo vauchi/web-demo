@@ -14,12 +14,17 @@ interface Props {
 
 export function StatusIndicatorComponent(props: Props) {
   return (
-    <div class={`status-indicator status-${props.status.toLowerCase()}`}>
-      <Show when={props.icon}><span class="icon">{props.icon}</span></Show>
-      <span class="status-title">{props.title}</span>
-      <Show when={props.detail}>
-        <span class="status-detail">{props.detail}</span>
+    <div class="component status-indicator">
+      <Show when={props.icon}>
+        <span class="status-icon">{props.icon}</span>
       </Show>
+      <div class="status-content">
+        <span class="status-title">{props.title}</span>
+        <Show when={props.detail}>
+          <span class="status-detail">{props.detail}</span>
+        </Show>
+      </div>
+      <span class={`status-badge status-${props.status}`}>{props.status}</span>
     </div>
   );
 }
