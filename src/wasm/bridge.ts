@@ -7,15 +7,20 @@
 
 import type { ScreenModel } from "../types/core";
 
+/// Default relay URL — matches all other Vauchi frontends.
+const DEFAULT_RELAY_URL = "wss://relay.vauchi.app";
+
 // These will be populated after WASM init
 let wasmModule: any = null;
 
-export async function initWasm(): Promise<void> {
+export async function initWasm(relayUrl?: string): Promise<void> {
+  const relay = relayUrl ?? DEFAULT_RELAY_URL;
   // TODO: Import from wasm-pack generated package
   // const wasm = await import("../../wasm/pkg/vauchi_wasm");
   // await wasm.default();
+  // wasm.set_relay_url(relay);
   // wasmModule = wasm;
-  console.log("WASM init placeholder — build with: npm run build:wasm");
+  console.log(`WASM init placeholder (relay: ${relay}) — build with: npm run build:wasm`);
 }
 
 export function createWorkflow(workflowType: string): number {
