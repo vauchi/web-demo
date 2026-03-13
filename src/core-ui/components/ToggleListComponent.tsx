@@ -28,7 +28,7 @@ export function ToggleListComponent(props: Props) {
               <label class="toggle-item-label">
                 <input
                   type="checkbox"
-                  checked={item.enabled}
+                  checked={item.selected}
                   onChange={() => onToggle(item.id)}
                 />
                 <span>{item.label}</span>

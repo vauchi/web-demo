@@ -22,13 +22,16 @@ export function ActionListComponent(props: Props) {
       <For each={props.items}>
         {(item) => (
           <div
-            class={`action-item ${item.destructive ? "action-destructive" : ""}`}
+            class="action-item"
             onClick={() => onSelect(item.id)}
           >
             <Show when={item.icon}>
               <span class="action-icon">{item.icon}</span>
             </Show>
             <span class="action-label">{item.label}</span>
+            <Show when={item.detail}>
+              <span class="action-detail">{item.detail}</span>
+            </Show>
           </div>
         )}
       </For>

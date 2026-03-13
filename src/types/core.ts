@@ -44,19 +44,19 @@ export type Component =
 
 export type TextStyle = "Title" | "Subtitle" | "Body" | "Caption";
 export type InputType = "Text" | "Phone" | "Email" | "Password";
-export type VisibilityMode = "ShowHide" | "PerGroup";
+export type VisibilityMode = "ReadOnly" | "ShowHide" | "PerGroup";
 export type Status = "Pending" | "InProgress" | "Success" | "Failed" | "Warning";
 export type QrMode = "Display" | "Scan";
 
-export interface ToggleItem { id: string; label: string; enabled: boolean; }
-export interface FieldDisplay { field_id: string; label: string; value: string; visibility: UiFieldVisibility; }
+export interface ToggleItem { id: string; label: string; selected: boolean; subtitle: string | null; }
+export interface FieldDisplay { id: string; field_type: string; label: string; value: string; visibility: UiFieldVisibility; }
 export type UiFieldVisibility = "Shown" | "Hidden" | { Groups: string[] };
-export interface GroupCardView { group_name: string; fields: FieldDisplay[]; }
-export interface InfoItem { label: string; value: string; }
-export interface ContactItem { id: string; name: string; subtitle: string | null; }
+export interface GroupCardView { group_name: string; display_name: string; visible_fields: FieldDisplay[]; }
+export interface InfoItem { icon: string | null; title: string; detail: string; }
+export interface ContactItem { id: string; name: string; subtitle: string | null; avatar_initials: string; status: string | null; searchable_fields: string[]; }
 export interface SettingsItem { id: string; label: string; kind: SettingsItemKind; }
-export type SettingsItemKind = { Toggle: { enabled: boolean } } | { Navigation: { detail: string | null } } | { Action: { destructive: boolean } };
-export interface ActionListItem { id: string; label: string; icon: string | null; destructive: boolean; }
+export type SettingsItemKind = { Toggle: { enabled: boolean } } | { Value: { value: string } } | { Link: { detail: string | null } } | { Destructive: { label: string } };
+export interface ActionListItem { id: string; label: string; icon: string | null; detail: string | null; }
 
 // UserAction tagged union
 export type UserAction =

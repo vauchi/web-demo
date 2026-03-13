@@ -24,8 +24,11 @@ export function InfoPanelComponent(props: Props) {
         <For each={props.items}>
           {(item) => (
             <div class="info-item">
-              <span class="info-label">{item.label}</span>
-              <span class="info-value">{item.value}</span>
+              <Show when={item.icon}>
+                <span class="info-item-icon">{item.icon}</span>
+              </Show>
+              <span class="info-label">{item.title}</span>
+              <span class="info-value">{item.detail}</span>
             </div>
           )}
         </For>

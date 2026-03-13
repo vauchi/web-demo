@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: 2026 Mattia Egloff <mattia.egloff@pm.me>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import { createSignal, onMount, Show } from "solid-js";
-import { initWasm, createWorkflow, getCurrentScreen, handleAction } from "./wasm/bridge";
+import { createSignal, onCleanup, onMount, Show } from "solid-js";
+import { initWasm, createWorkflow, getCurrentScreen, handleAction, destroyWorkflow } from "./wasm/bridge";
 import { ScreenRenderer } from "./core-ui/ScreenRenderer";
 import type { ScreenModel } from "./types/core";
 
@@ -22,6 +22,13 @@ export default function App() {
       setError(`Failed to initialize: ${e}`);
     } finally {
       setLoading(false);
+    }
+  });
+
+  onCleanup(() => {
+    if (workflowHandle !== null) {
+      destroyWorkflow(workflowHandle);
+      workflowHandle = null;
     }
   });
 

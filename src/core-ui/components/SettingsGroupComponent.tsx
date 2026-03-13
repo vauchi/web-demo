@@ -43,21 +43,26 @@ export function SettingsGroupComponent(props: Props) {
                     />
                   )}
                 </Match>
-                <Match when={"Navigation" in item.kind && (item.kind as { Navigation: { detail: string | null } }).Navigation}>
-                  {(nav) => (
+                <Match when={"Value" in item.kind && (item.kind as { Value: { value: string } }).Value}>
+                  {(val) => (
+                    <span class="settings-value">{val().value}</span>
+                  )}
+                </Match>
+                <Match when={"Link" in item.kind && (item.kind as { Link: { detail: string | null } }).Link}>
+                  {(link) => (
                     <span class="settings-nav" onClick={() => onSelect(item.id)}>
-                      {nav().detail && <span class="settings-detail">{nav().detail}</span>}
+                      {link().detail && <span class="settings-detail">{link().detail}</span>}
                       <span class="nav-arrow">&#8250;</span>
                     </span>
                   )}
                 </Match>
-                <Match when={"Action" in item.kind && (item.kind as { Action: { destructive: boolean } }).Action}>
-                  {(action) => (
+                <Match when={"Destructive" in item.kind && (item.kind as { Destructive: { label: string } }).Destructive}>
+                  {(destructive) => (
                     <button
-                      class={`settings-action-link ${action().destructive ? "action-destructive-text" : ""}`}
+                      class="settings-action-link action-destructive-text"
                       onClick={() => onSelect(item.id)}
                     >
-                      &#8250;
+                      {destructive().label}
                     </button>
                   )}
                 </Match>

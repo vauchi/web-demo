@@ -22,7 +22,7 @@ export function CardPreviewComponent(props: Props) {
   const activeFields = () => {
     if (props.selected_group && props.group_views.length > 0) {
       const view = props.group_views.find(v => v.group_name === props.selected_group);
-      return view ? view.fields : props.fields;
+      return view ? view.visible_fields : props.fields;
     }
     return props.fields;
   };
@@ -43,7 +43,7 @@ export function CardPreviewComponent(props: Props) {
                 class={`card-tab ${props.selected_group === view.group_name ? "card-tab-active" : ""}`}
                 onClick={() => selectGroup(view.group_name)}
               >
-                {view.group_name}
+                {view.display_name}
               </button>
             )}
           </For>
