@@ -45,11 +45,17 @@ pages:
   stage: deploy
   script:
     - mv dist public
+    - |
+      curl --silent --fail \
+        "${CI_API_V4_URL}/projects/vauchi%2Fscripts/repository/files/scripts%2Fci%2Fgenerate-badges.sh/raw?ref=main" \
+        -o generate-badges.sh
+      chmod +x generate-badges.sh
+    - ./generate-badges.sh public/badges
   artifacts:
     paths:
       - public
-  only:
-    - main
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   tags: [linux]
 
 # Design drift: verify all design-spec components are implemented
