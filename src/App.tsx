@@ -34,7 +34,15 @@ export default function App() {
 
   const onAction = (actionJson: string) => {
     if (workflowHandle === null) return;
-    handleAction(workflowHandle, actionJson);
+    const resultJson = handleAction(workflowHandle, actionJson);
+    try {
+      const result = JSON.parse(resultJson);
+      if (result.error) {
+        console.warn("Action error:", result.error);
+      }
+    } catch {
+      // Non-JSON response — ignore
+    }
     const updated = getCurrentScreen(workflowHandle);
     setScreen(updated);
   };
@@ -48,7 +56,7 @@ export default function App() {
         </p>
       </header>
       <main>
-        <Show when={!loading()} fallback={<p>Loading WASM...</p>}>
+        <Show when={!loading()} fallback={<div class="loading-container"><div class="spinner" /><span>Loading WASM module...</span></div>}>
           <Show when={!error()} fallback={<p class="error">{error()}</p>}>
             <Show when={screen()}>
               {(s) => <ScreenRenderer screen={s()} onAction={onAction} />}

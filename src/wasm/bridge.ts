@@ -16,7 +16,11 @@ let wasmModule: any = null;
 export async function initWasm(relayUrl?: string): Promise<void> {
   const relay = relayUrl ?? DEFAULT_RELAY_URL;
   try {
-    const wasm = await import("../../wasm/pkg/vauchi_wasm");
+    // Dynamic import path — resolved at runtime.
+    // Vite marks this as external when wasm/pkg/ doesn't exist (pre-wasm-pack).
+    // After `npm run build:wasm`, the package will be available and this resolves.
+    const wasmPath = "../../wasm/pkg/vauchi_wasm";
+    const wasm = await import(/* @vite-ignore */ wasmPath);
     await wasm.default();
     wasmModule = wasm;
     console.log(`WASM initialized (relay: ${relay})`);

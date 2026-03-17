@@ -23,18 +23,27 @@ export function ConfirmationDialogComponent(props: Props) {
     }));
   };
 
+  const onBackdropClick = (e: MouseEvent) => {
+    // Only dismiss if clicking the backdrop itself, not the dialog content
+    if (e.target === e.currentTarget) {
+      onCancel();
+    }
+  };
+
   return (
-    <div class="component confirmation-dialog">
-      <h4 class="dialog-title">{props.title}</h4>
-      <p class="dialog-message">{props.message}</p>
-      <div class="dialog-actions">
-        <button class="btn-cancel" onClick={onCancel}>Cancel</button>
-        <button
-          class={props.destructive ? "btn-destructive" : "btn-confirm"}
-          onClick={onConfirm}
-        >
-          {props.confirm_text}
-        </button>
+    <div class="dialog-backdrop" onClick={onBackdropClick}>
+      <div class="component confirmation-dialog">
+        <h4 class="dialog-title">{props.title}</h4>
+        <p class="dialog-message">{props.message}</p>
+        <div class="dialog-actions">
+          <button class="btn-cancel" onClick={onCancel}>Cancel</button>
+          <button
+            class={props.destructive ? "btn-destructive" : "btn-confirm"}
+            onClick={onConfirm}
+          >
+            {props.confirm_text}
+          </button>
+        </div>
       </div>
     </div>
   );
