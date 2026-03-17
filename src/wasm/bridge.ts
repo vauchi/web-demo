@@ -15,12 +15,16 @@ let wasmModule: any = null;
 
 export async function initWasm(relayUrl?: string): Promise<void> {
   const relay = relayUrl ?? DEFAULT_RELAY_URL;
-  // TODO: Import from wasm-pack generated package
-  // const wasm = await import("../../wasm/pkg/vauchi_wasm");
-  // await wasm.default();
-  // wasm.set_relay_url(relay);
-  // wasmModule = wasm;
-  console.log(`WASM init placeholder (relay: ${relay}) — build with: npm run build:wasm`);
+  try {
+    const wasm = await import("../../wasm/pkg/vauchi_wasm");
+    await wasm.default();
+    wasmModule = wasm;
+    console.log(`WASM initialized (relay: ${relay})`);
+  } catch (e) {
+    // Fallback for development without WASM built
+    console.warn(`WASM not available — build with: npm run build:wasm`, e);
+    wasmModule = null;
+  }
 }
 
 export function createWorkflow(workflowType: string): number {
