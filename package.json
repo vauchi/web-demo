@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "build:wasm": "wasm-pack build wasm --target web --features crypto-wasm",
+    "build:wasm": "wasm-pack build wasm --target web",
     "preview": "vite preview",
     "test": "vitest"
   },
