@@ -11,7 +11,7 @@ use std::sync::Mutex;
 use vauchi_core::ui::*;
 use wasm_bindgen::prelude::*;
 
-static WORKFLOWS: Mutex<Vec<Option<Box<dyn WorkflowEngineAny>>>> = Mutex::new(Vec::new());
+static WORKFLOWS: Mutex<Vec<Option<Box<dyn WorkflowEngineAny + Send>>>> = Mutex::new(Vec::new());
 
 trait WorkflowEngineAny {
     fn current_screen_json(&self) -> String;
@@ -35,7 +35,7 @@ impl<T: WorkflowEngine> WorkflowEngineAny for T {
 
 #[wasm_bindgen]
 pub fn workflow_create(workflow_type: &str) -> i32 {
-    let engine: Box<dyn WorkflowEngineAny> = match workflow_type {
+    let engine: Box<dyn WorkflowEngineAny + Send> = match workflow_type {
         "onboarding" => Box::new(OnboardingEngine::new()),
         "emergency_shred" => Box::new(EmergencyShredEngine::new()),
         "lock_screen" => Box::new(LockScreenEngine::new(3)),
