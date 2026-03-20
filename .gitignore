@@ -5,3 +5,4 @@ wasm/pkg/
 .DS_Store
 *.swp
 test-results/
+.last-run.json
