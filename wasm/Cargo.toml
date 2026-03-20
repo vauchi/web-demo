@@ -5,7 +5,7 @@
 [package]
 name = "vauchi-wasm"
 version = "0.5.0-rc.0"
-edition = "2021"
+edition = "2024"
 license = "GPL-3.0-or-later"
 description = "WASM bindings for vauchi-core (web demo)"
 
