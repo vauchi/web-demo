@@ -95,20 +95,19 @@ secret_detection:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
 # Accessibility + Visual Regression (Playwright + axe-core)
+# Uses official Playwright image — all browsers + system deps pre-installed.
+# No sudo needed, works on both Docker and shell executors.
 test:a11y:
   stage: test
-  before_script:
-    - which curl >/dev/null 2>&1 || (apt-get update -qq && apt-get install -y -qq curl >/dev/null 2>&1) || true
+  image: mcr.microsoft.com/playwright:v1.50.0-noble
   script:
     - npm ci
-    - npx playwright install --with-deps chromium
     - npm run build
     - npx playwright test
   artifacts:
     when: on_failure
     paths:
-      - web-demo/test-results/
-  tags: [linux]
+      - test-results/
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
