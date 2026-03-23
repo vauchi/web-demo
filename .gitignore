@@ -6,3 +6,11 @@ wasm/pkg/
 *.swp
 test-results/
 .last-run.json
+
+# Secrets & credentials (never commit)
+.env
+.env.*
+*.key
+*.pem
+credentials.json
+service-account*.json
