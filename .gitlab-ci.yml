@@ -97,7 +97,7 @@ secret_detection:
 # Accessibility (axe-core) — must pass. Hard gate.
 test:a11y:
   stage: test
-  image: mcr.microsoft.com/playwright:v1.50.0-noble
+  image: mcr.microsoft.com/playwright:v1.58.2-noble
   script:
     - npm ci
     - npx playwright install --with-deps chromium
@@ -111,7 +111,7 @@ test:a11y:
 # Download artifacts to update baselines: glab api projects/vauchi%2Fweb-demo/jobs/JOB_ID/artifacts
 test:vrt:
   stage: test
-  image: mcr.microsoft.com/playwright:v1.50.0-noble
+  image: mcr.microsoft.com/playwright:v1.58.2-noble
   script:
     - npm ci
     - npx playwright install --with-deps chromium
