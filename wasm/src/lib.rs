@@ -8,7 +8,7 @@
 //! WebCrypto + RustCrypto backend.
 
 use std::sync::Mutex;
-use vauchi_core::ui::*;
+use vauchi_app::ui::*;
 use wasm_bindgen::prelude::*;
 
 static WORKFLOWS: Mutex<Vec<Option<Box<dyn WorkflowEngineAny + Send>>>> = Mutex::new(Vec::new());

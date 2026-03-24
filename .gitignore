@@ -2,6 +2,7 @@ node_modules/
 dist/
 wasm/target/
 wasm/pkg/
+wasm/.cargo/
 .DS_Store
 *.swp
 test-results/
