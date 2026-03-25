@@ -8,6 +8,7 @@ include:
     ref: main
     file:
       - '/ci-templates/design-drift.yml'
+      - '/ci-templates/removed-symbols.yml'
 
 variables:
   SAST_EXCLUDED_PATHS: "dist/, node_modules/, wasm/pkg/, wasm/target/"
@@ -136,3 +137,8 @@ check:design-drift:
     DESIGN_DRIFT_FILE_SUFFIX: "Component"
     DESIGN_DRIFT_CASE: "pascal"
 
+# Removed symbols: detect stale references to removed features
+check:removed-symbols:
+  extends: .removed-symbols-job
+  variables:
+    SEARCH_DIRS: "src/ tests/"
