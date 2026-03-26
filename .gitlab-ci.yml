@@ -54,7 +54,7 @@ build:web:
       - dist/
   tags: [linux]
 
-test:
+test:unit:
   stage: test
   script:
     - npm ci
