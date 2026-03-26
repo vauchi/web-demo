@@ -1,15 +1,29 @@
 <!-- SPDX-FileCopyrightText: 2026 Mattia Egloff <mattia.egloff@pm.me> -->
 <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
 <!DOCTYPE html>
-<html lang="en" data-theme="default-dark">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Vauchi — Demo</title>
-  <link rel="stylesheet" href="/src/styles/app.css" />
-</head>
-<body>
-  <div id="root"></div>
-  <script type="module" src="/src/index.tsx"></script>
-</body>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vauchi — Demo</title>
+    <link rel="stylesheet" href="/src/styles/app.css" />
+    <script>
+      // Auto-detect theme from OS preference before first paint (no flash).
+      // Listens for changes so toggling OS dark mode updates instantly.
+      (function () {
+        var mq = window.matchMedia("(prefers-color-scheme: dark)");
+        function apply(e) {
+          document.documentElement.dataset.theme = e.matches
+            ? "default-dark"
+            : "default-light";
+        }
+        apply(mq);
+        mq.addEventListener("change", apply);
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/index.tsx"></script>
+  </body>
 </html>

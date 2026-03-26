@@ -6,11 +6,18 @@ import { initWasm, createWorkflow, getCurrentScreen, handleAction, destroyWorkfl
 import { ScreenRenderer } from "./core-ui/ScreenRenderer";
 import type { ScreenModel } from "./types/core";
 
+interface Toast {
+  title: string;
+  message: string;
+}
+
 export default function App() {
   const [screen, setScreen] = createSignal<ScreenModel | null>(null);
   const [loading, setLoading] = createSignal(true);
   const [error, setError] = createSignal<string | null>(null);
+  const [toast, setToast] = createSignal<Toast | null>(null);
   let workflowHandle: number | null = null;
+  let toastTimer: ReturnType<typeof setTimeout> | undefined;
 
   onMount(async () => {
     try {
@@ -30,7 +37,14 @@ export default function App() {
       destroyWorkflow(workflowHandle);
       workflowHandle = null;
     }
+    clearTimeout(toastTimer);
   });
+
+  const showToast = (t: Toast) => {
+    clearTimeout(toastTimer);
+    setToast(t);
+    toastTimer = setTimeout(() => setToast(null), 4000);
+  };
 
   const onAction = (actionJson: string) => {
     if (workflowHandle === null) return;
@@ -39,6 +53,17 @@ export default function App() {
       const result = JSON.parse(resultJson);
       if (result.error) {
         console.warn("Action error:", result.error);
+        return;
+      }
+      // Handle ActionResult variants
+      if (result.ShowAlert) {
+        showToast({ title: result.ShowAlert.title, message: result.ShowAlert.message });
+      }
+      if (result.Complete || result === "Complete") {
+        showToast({ title: "Done", message: "Workflow completed." });
+      }
+      if (result.WipeComplete || result === "WipeComplete") {
+        showToast({ title: "Wiped", message: "All data has been erased." });
       }
     } catch {
       // Non-JSON response — ignore
@@ -57,13 +82,23 @@ export default function App() {
       </header>
       <main>
         <Show when={!loading()} fallback={<div class="loading-container"><div class="spinner" /><span>Loading WASM module...</span></div>}>
-          <Show when={!error()} fallback={<p class="error">{error()}</p>}>
+          <Show when={!error()} fallback={<p class="error" role="alert">{error()}</p>}>
             <Show when={screen()}>
               {(s) => <ScreenRenderer screen={s()} onAction={onAction} />}
             </Show>
           </Show>
         </Show>
       </main>
+      <div class="toast-region" aria-live="polite" aria-atomic="true">
+        <Show when={toast()}>
+          {(t) => (
+            <div class="toast">
+              <strong>{t().title}</strong>
+              <span>{t().message}</span>
+            </div>
+          )}
+        </Show>
+      </div>
     </div>
   );
 }

@@ -41,10 +41,12 @@ export function TextInputComponent(props: Props) {
         value={props.value}
         placeholder={props.placeholder ?? ""}
         maxLength={props.max_length ?? undefined}
+        aria-invalid={props.validation_error ? true : undefined}
+        aria-describedby={props.validation_error ? `${props.id}-error` : undefined}
         onInput={handleInput}
       />
       <Show when={props.validation_error}>
-        <span class="validation-error">{props.validation_error}</span>
+        <span class="validation-error" id={`${props.id}-error`}>{props.validation_error}</span>
       </Show>
     </div>
   );

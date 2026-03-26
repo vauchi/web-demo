@@ -59,6 +59,7 @@ export function PinInputComponent(props: Props) {
               inputMode="numeric"
               maxLength={1}
               value={digits()[i] ?? ""}
+              aria-label={`PIN digit ${i + 1}`}
               onInput={(e) => handleInput(i, e)}
               onKeyDown={(e) => handleKeyDown(i, e)}
             />

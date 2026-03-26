@@ -19,7 +19,7 @@ export function ToggleListComponent(props: Props) {
   };
 
   return (
-    <div class="component toggle-list">
+    <div class="component toggle-list" role="group" aria-label={props.label}>
       <div class="toggle-list-label">{props.label}</div>
       <ul class="toggle-items">
         <For each={props.items}>

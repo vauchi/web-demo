@@ -7,26 +7,18 @@
 
 import type { ScreenModel } from "../types/core";
 
-/// Default relay URL — matches all other Vauchi frontends.
-const DEFAULT_RELAY_URL = "wss://relay.vauchi.app";
-
 // These will be populated after WASM init
 let wasmModule: any = null;
 
-export async function initWasm(relayUrl?: string): Promise<void> {
-  const relay = relayUrl ?? DEFAULT_RELAY_URL;
+export async function initWasm(): Promise<void> {
   try {
-    // Dynamic import path — resolved at runtime.
-    // Vite marks this as external when wasm/pkg/ doesn't exist (pre-wasm-pack).
-    // After `npm run build:wasm`, the package will be available and this resolves.
     const wasmPath = "../../wasm/pkg/vauchi_wasm";
     const wasm = await import(/* @vite-ignore */ wasmPath);
     await wasm.default();
     wasmModule = wasm;
-    console.log(`WASM initialized (relay: ${relay})`);
+    console.log("WASM initialized");
   } catch (e) {
-    // Fallback for development without WASM built
-    console.warn(`WASM not available — build with: npm run build:wasm`, e);
+    console.warn("WASM not available — build with: npm run build:wasm", e);
     wasmModule = null;
   }
 }

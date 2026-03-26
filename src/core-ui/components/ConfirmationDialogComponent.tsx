@@ -30,11 +30,19 @@ export function ConfirmationDialogComponent(props: Props) {
     }
   };
 
+  const titleId = `${props.id}-title`;
+  const messageId = `${props.id}-message`;
+
   return (
     <div class="dialog-backdrop" onClick={onBackdropClick}>
-      <div class="component confirmation-dialog">
-        <h4 class="dialog-title">{props.title}</h4>
-        <p class="dialog-message">{props.message}</p>
+      <div
+        class="component confirmation-dialog"
+        role="alertdialog"
+        aria-labelledby={titleId}
+        aria-describedby={messageId}
+      >
+        <h4 class="dialog-title" id={titleId}>{props.title}</h4>
+        <p class="dialog-message" id={messageId}>{props.message}</p>
         <div class="dialog-actions">
           <button class="btn-cancel" onClick={onCancel}>Cancel</button>
           <button

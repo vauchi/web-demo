@@ -36,6 +36,13 @@ export function ContactListComponent(props: Props) {
     }));
   };
 
+  const onKeyDown = (itemId: string, e: KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onSelect(itemId);
+    }
+  };
+
   return (
     <div class="component contact-list">
       <Show when={props.searchable}>
@@ -43,15 +50,22 @@ export function ContactListComponent(props: Props) {
           class="search"
           type="text"
           placeholder="Search contacts..."
+          aria-label="Search contacts"
           value={query()}
           onInput={(e) => onSearch(e.currentTarget.value)}
         />
       </Show>
-      <div class="contact-items">
+      <div class="contact-items" role="listbox" aria-label="Contacts">
         <For each={filteredContacts()}>
           {(contact) => (
-            <div class="contact-item" onClick={() => onSelect(contact.id)}>
-              <div class="avatar">{contact.name.charAt(0).toUpperCase()}</div>
+            <div
+              class="contact-item"
+              role="option"
+              tabIndex={0}
+              onClick={() => onSelect(contact.id)}
+              onKeyDown={(e) => onKeyDown(contact.id, e)}
+            >
+              <div class="avatar">{contact.avatar_initials}</div>
               <div class="contact-info">
                 <span class="contact-name">{contact.name}</span>
                 <Show when={contact.subtitle}>

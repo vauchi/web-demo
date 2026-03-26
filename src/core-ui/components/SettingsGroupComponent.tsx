@@ -25,7 +25,7 @@ export function SettingsGroupComponent(props: Props) {
   };
 
   return (
-    <div class="component settings-group">
+    <div class="component settings-group" role="group" aria-label={props.label}>
       <div class="settings-label">{props.label}</div>
       <div class="settings-items">
         <For each={props.items}>

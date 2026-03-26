@@ -17,16 +17,26 @@ export function ActionListComponent(props: Props) {
     }));
   };
 
+  const onKeyDown = (itemId: string, e: KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      onSelect(itemId);
+    }
+  };
+
   return (
-    <div class="component action-list">
+    <div class="component action-list" role="list">
       <For each={props.items}>
         {(item) => (
           <div
             class="action-item"
+            role="button"
+            tabIndex={0}
             onClick={() => onSelect(item.id)}
+            onKeyDown={(e) => onKeyDown(item.id, e)}
           >
             <Show when={item.icon}>
-              <span class="action-icon">{item.icon}</span>
+              <span class="action-icon" aria-hidden="true">{item.icon}</span>
             </Show>
             <span class="action-label">{item.label}</span>
             <Show when={item.detail}>

@@ -4,8 +4,7 @@
 //! WASM bindings for vauchi-core workflow engines.
 //!
 //! Exposes workflow create/screen/action functions to JavaScript
-//! via wasm-bindgen. Built with `crypto-wasm` feature for hybrid
-//! WebCrypto + RustCrypto backend.
+//! via wasm-bindgen. Uses pure RustCrypto stack (no C FFI).
 
 use std::sync::Mutex;
 use vauchi_app::ui::*;
