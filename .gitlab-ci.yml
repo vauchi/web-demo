@@ -19,6 +19,7 @@ include:
     file:
       - '/ci-templates/design-drift.yml'
       - '/ci-templates/removed-symbols.yml'
+      - '/ci-templates/github-mirror.yml'
 
 variables:
   SAST_EXCLUDED_PATHS: "dist/, node_modules/, wasm/pkg/, wasm/target/"
@@ -150,3 +151,6 @@ check:removed-symbols:
   extends: .removed-symbols-job
   variables:
     SEARCH_DIRS: "src/ tests/"
+
+github-mirror:
+  extends: .github-mirror
