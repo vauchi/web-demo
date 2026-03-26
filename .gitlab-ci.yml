@@ -95,6 +95,7 @@ secret_detection:
 test:a11y:
   stage: test
   image: mcr.microsoft.com/playwright:v1.58.2-noble
+  tags: [docker]
   script:
     - npm ci
     - npx playwright install --with-deps chromium
@@ -109,6 +110,7 @@ test:a11y:
 test:vrt:
   stage: test
   image: mcr.microsoft.com/playwright:v1.58.2-noble
+  tags: [docker]
   script:
     - npm ci
     - npx playwright install --with-deps chromium
