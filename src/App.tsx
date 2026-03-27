@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Mattia Egloff <mattia.egloff@pm.me>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import { createSignal, onCleanup, onMount, Show } from "solid-js";
+import { createSignal, onCleanup, onMount, Show, For } from "solid-js";
 import { initWasm, createWorkflow, getCurrentScreen, handleAction, destroyWorkflow } from "./wasm/bridge";
 import { ScreenRenderer } from "./core-ui/ScreenRenderer";
 import type { ScreenModel } from "./types/core";
@@ -11,20 +11,36 @@ interface Toast {
   message: string;
 }
 
+const WORKFLOWS = [
+  { id: "onboarding", label: "Onboarding" },
+  { id: "emergency_shred", label: "Emergency Shred" },
+  { id: "lock_screen", label: "Lock Screen" },
+] as const;
+
 export default function App() {
   const [screen, setScreen] = createSignal<ScreenModel | null>(null);
   const [loading, setLoading] = createSignal(true);
   const [error, setError] = createSignal<string | null>(null);
   const [toast, setToast] = createSignal<Toast | null>(null);
+  const [activeWorkflow, setActiveWorkflow] = createSignal("onboarding");
+  const [wasmReady, setWasmReady] = createSignal(false);
   let workflowHandle: number | null = null;
   let toastTimer: ReturnType<typeof setTimeout> | undefined;
+
+  const startWorkflow = (workflowType: string) => {
+    if (workflowHandle !== null) {
+      destroyWorkflow(workflowHandle);
+    }
+    workflowHandle = createWorkflow(workflowType);
+    setActiveWorkflow(workflowType);
+    setScreen(getCurrentScreen(workflowHandle));
+  };
 
   onMount(async () => {
     try {
       await initWasm();
-      workflowHandle = createWorkflow("onboarding");
-      const screenData = getCurrentScreen(workflowHandle);
-      setScreen(screenData);
+      setWasmReady(true);
+      startWorkflow("onboarding");
     } catch (e) {
       setError(`Failed to initialize: ${e}`);
     } finally {
@@ -79,6 +95,22 @@ export default function App() {
         <p class="demo-notice">
           This is a sandboxed demo. Data is wiped every hour.
         </p>
+        <Show when={wasmReady()}>
+          <nav class="workflow-tabs" role="tablist" aria-label="Demo workflows">
+            <For each={WORKFLOWS}>
+              {(w) => (
+                <button
+                  role="tab"
+                  aria-selected={activeWorkflow() === w.id}
+                  class={`workflow-tab ${activeWorkflow() === w.id ? "workflow-tab-active" : ""}`}
+                  onClick={() => startWorkflow(w.id)}
+                >
+                  {w.label}
+                </button>
+              )}
+            </For>
+          </nav>
+        </Show>
       </header>
       <main>
         <Show when={!loading()} fallback={<div class="loading-container"><div class="spinner" /><span>Loading WASM module...</span></div>}>

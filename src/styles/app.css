@@ -30,6 +30,28 @@ body {
   font-size: 12px;
   color: var(--color-text-secondary);
 } /* TODO: map 12px to token */
+/* === Workflow selector tabs === */
+.workflow-tabs {
+  display: flex;
+  gap: var(--spacing-xs);
+  justify-content: center;
+  margin-top: var(--spacing-sm);
+}
+.workflow-tab {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  font-size: 13px;
+}
+.workflow-tab-active {
+  background: var(--color-accent);
+  color: white;
+  border-color: var(--color-accent);
+}
+
 .screen {
   display: flex;
   flex-direction: column;
