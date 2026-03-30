@@ -20,6 +20,7 @@ include:
       - '/ci-templates/design-drift.yml'
       - '/ci-templates/removed-symbols.yml'
       - '/ci-templates/github-mirror.yml'
+      - '/ci-templates/vrt-upload.yml'
 
 variables:
   SAST_EXCLUDED_PATHS: "dist/, node_modules/, wasm/pkg/, wasm/target/"
@@ -122,11 +123,16 @@ test:vrt:
   stage: test
   image: mcr.microsoft.com/playwright:v1.58.2-noble
   tags: [docker]
+  variables:
+    VRT_PLATFORM: web-demo
+    VRT_SCREENSHOT_DIR: tests/playwright/vrt.spec.ts-snapshots
   script:
     - npm ci
     - npx playwright install --with-deps chromium
     - npm run build
     - npx playwright test tests/playwright/vrt.spec.ts --update-snapshots
+  after_script:
+    - !reference [.vrt-upload-script, script]
   artifacts:
     when: always
     paths:
