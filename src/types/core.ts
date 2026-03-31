@@ -39,7 +39,7 @@ export type Component =
   | { StatusIndicator: { id: string; icon: string | null; title: string; detail: string | null; status: Status } }
   | { PinInput: { id: string; label: string; length: number; masked: boolean; validation_error: string | null } }
   | { QrCode: { id: string; data: string; mode: QrMode; label: string | null } }
-  | { ConfirmationDialog: { id: string; title: string; message: string; confirm_text: string; destructive: boolean } }
+  | { InlineConfirm: { id: string; warning: string; confirm_text: string; cancel_text: string; destructive: boolean } }
   | "Divider";
 
 export type TextStyle = "Title" | "Subtitle" | "Body" | "Caption";

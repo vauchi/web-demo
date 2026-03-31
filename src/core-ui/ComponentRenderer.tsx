@@ -15,7 +15,7 @@ import { ActionListComponent } from "./components/ActionListComponent";
 import { StatusIndicatorComponent } from "./components/StatusIndicatorComponent";
 import { PinInputComponent } from "./components/PinInputComponent";
 import { QrCodeComponent } from "./components/QrCodeComponent";
-import { ConfirmationDialogComponent } from "./components/ConfirmationDialogComponent";
+import { InlineConfirmComponent } from "./components/InlineConfirmComponent";
 import { DividerComponent } from "./components/DividerComponent";
 
 interface Props {
@@ -69,8 +69,8 @@ export function ComponentRenderer(props: Props) {
       <Match when={"QrCode" in comp && (comp as any).QrCode}>
         {(data) => <QrCodeComponent {...data()} />}
       </Match>
-      <Match when={"ConfirmationDialog" in comp && (comp as any).ConfirmationDialog}>
-        {(data) => <ConfirmationDialogComponent {...data()} onAction={props.onAction} />}
+      <Match when={"InlineConfirm" in comp && (comp as any).InlineConfirm}>
+        {(data) => <InlineConfirmComponent {...data()} onAction={props.onAction} />}
       </Match>
     </Switch>
   );
