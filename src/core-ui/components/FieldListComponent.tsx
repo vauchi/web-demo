@@ -12,10 +12,48 @@ interface Props {
   onAction: (actionJson: string) => void;
 }
 
-function VisibilityBadge(props: { visibility: UiFieldVisibility; mode: VisibilityMode }) {
+interface VisibilityBadgeProps {
+  field_id: string;
+  visibility: UiFieldVisibility;
+  mode: VisibilityMode;
+  onAction: (actionJson: string) => void;
+}
+
+function VisibilityBadge(props: VisibilityBadgeProps) {
+  const toggleVisibility = () => {
+    const visible = props.visibility === "Hidden";
+    props.onAction(JSON.stringify({
+      FieldVisibilityChanged: { field_id: props.field_id, group_id: null, visible }
+    }));
+  };
+
+  const removeGroup = (group: string) => {
+    props.onAction(JSON.stringify({
+      FieldVisibilityChanged: { field_id: props.field_id, group_id: group, visible: false }
+    }));
+  };
+
   return (
     <div class="field-visibility">
       <Switch>
+        <Match when={props.visibility === "Shown" && props.mode === "ShowHide"}>
+          <span
+            class="visibility-icon visibility-shown"
+            title="Visible — click to hide"
+            role="button"
+            aria-label="Hide field"
+            onClick={toggleVisibility}
+          >&#128065;</span>
+        </Match>
+        <Match when={props.visibility === "Hidden" && props.mode === "ShowHide"}>
+          <span
+            class="visibility-icon visibility-hidden"
+            title="Hidden — click to show"
+            role="button"
+            aria-label="Show field"
+            onClick={toggleVisibility}
+          >&#128683;</span>
+        </Match>
         <Match when={props.visibility === "Shown"}>
           <span class="visibility-icon visibility-shown" title="Visible">&#128065;</span>
         </Match>
@@ -24,7 +62,15 @@ function VisibilityBadge(props: { visibility: UiFieldVisibility; mode: Visibilit
         </Match>
         <Match when={typeof props.visibility === "object" && "Groups" in (props.visibility as object)}>
           <For each={(props.visibility as { Groups: string[] }).Groups}>
-            {(group) => <span class="group-badge">{group}</span>}
+            {(group) => (
+              <span
+                class="group-badge"
+                role={props.mode === "PerGroup" ? "button" : undefined}
+                aria-label={props.mode === "PerGroup" ? `Remove group ${group}` : undefined}
+                title={props.mode === "PerGroup" ? "Click to remove" : undefined}
+                onClick={props.mode === "PerGroup" ? () => removeGroup(group) : undefined}
+              >{group}</span>
+            )}
           </For>
         </Match>
       </Switch>
@@ -42,7 +88,7 @@ export function FieldListComponent(props: Props) {
               <span class="field-label">{field.label}</span>
               <span class="field-value">{field.value}</span>
             </div>
-            <VisibilityBadge visibility={field.visibility} mode={props.visibility_mode} />
+            <VisibilityBadge field_id={field.id} visibility={field.visibility} mode={props.visibility_mode} onAction={props.onAction} />
           </div>
         )}
       </For>
