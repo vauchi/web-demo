@@ -17,6 +17,7 @@ import { PinInputComponent } from "./components/PinInputComponent";
 import { QrCodeComponent } from "./components/QrCodeComponent";
 import { InlineConfirmComponent } from "./components/InlineConfirmComponent";
 import { EditableTextComponent } from "./components/EditableTextComponent";
+import { BannerComponent } from "./components/BannerComponent";
 import { DividerComponent } from "./components/DividerComponent";
 
 interface Props {
@@ -75,6 +76,9 @@ export function ComponentRenderer(props: Props) {
       </Match>
       <Match when={"EditableText" in comp && (comp as any).EditableText}>
         {(data) => <EditableTextComponent {...data()} onAction={props.onAction} />}
+      </Match>
+      <Match when={"Banner" in comp && (comp as any).Banner}>
+        {(data) => <BannerComponent {...data()} onAction={props.onAction} />}
       </Match>
     </Switch>
   );
