@@ -69,4 +69,5 @@ export type UserAction =
   | { GroupViewSelected: { group_name: string | null } }
   | { SearchChanged: { component_id: string; query: string } }
   | { ListItemSelected: { component_id: string; item_id: string } }
-  | { SettingsToggled: { component_id: string; item_id: string } };
+  | { SettingsToggled: { component_id: string; item_id: string } }
+  | { UndoPressed: { action_id: string } };
