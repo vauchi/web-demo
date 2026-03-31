@@ -13,13 +13,13 @@ interface Props {
 export function InlineConfirmComponent(props: Props) {
   const onConfirm = () => {
     props.onAction(JSON.stringify({
-      ActionPressed: { action_id: `${props.id}_confirm` }
+      ActionPressed: { action_id: `confirm_${props.id}` }
     }));
   };
 
   const onCancel = () => {
     props.onAction(JSON.stringify({
-      ActionPressed: { action_id: `${props.id}_cancel` }
+      ActionPressed: { action_id: `cancel_${props.id}` }
     }));
   };
 

@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Mattia Egloff <mattia.egloff@pm.me>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import { Show } from "solid-js";
+import { createSignal, Show } from "solid-js";
 
 interface Props {
   id: string;
@@ -13,6 +13,8 @@ interface Props {
 }
 
 export function EditableTextComponent(props: Props) {
+  const [isEditing, setIsEditing] = createSignal(props.editing);
+
   const handleInput = (e: InputEvent) => {
     const value = (e.target as HTMLInputElement).value;
     props.onAction(JSON.stringify({
@@ -21,19 +23,17 @@ export function EditableTextComponent(props: Props) {
   };
 
   const handleEdit = () => {
-    props.onAction(JSON.stringify({
-      ActionPressed: { action_id: `${props.id}_edit` }
-    }));
+    setIsEditing(true);
   };
 
   return (
     <div class="component editable-text">
       <label for={props.id}>{props.label}</label>
       <Show
-        when={props.editing}
+        when={isEditing() || props.editing}
         fallback={
           <div class="editable-text-display">
-            <span class="editable-text-value">{props.value}</span>
+            <span class="editable-text-value">{props.value || "\u2014"}</span>
             <button class="btn-edit" onClick={handleEdit}>Edit</button>
           </div>
         }
