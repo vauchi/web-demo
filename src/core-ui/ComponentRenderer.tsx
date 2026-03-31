@@ -16,6 +16,7 @@ import { StatusIndicatorComponent } from "./components/StatusIndicatorComponent"
 import { PinInputComponent } from "./components/PinInputComponent";
 import { QrCodeComponent } from "./components/QrCodeComponent";
 import { InlineConfirmComponent } from "./components/InlineConfirmComponent";
+import { EditableTextComponent } from "./components/EditableTextComponent";
 import { DividerComponent } from "./components/DividerComponent";
 
 interface Props {
@@ -71,6 +72,9 @@ export function ComponentRenderer(props: Props) {
       </Match>
       <Match when={"InlineConfirm" in comp && (comp as any).InlineConfirm}>
         {(data) => <InlineConfirmComponent {...data()} onAction={props.onAction} />}
+      </Match>
+      <Match when={"EditableText" in comp && (comp as any).EditableText}>
+        {(data) => <EditableTextComponent {...data()} onAction={props.onAction} />}
       </Match>
     </Switch>
   );

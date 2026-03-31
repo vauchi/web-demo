@@ -40,6 +40,7 @@ export type Component =
   | { PinInput: { id: string; label: string; length: number; masked: boolean; validation_error: string | null } }
   | { QrCode: { id: string; data: string; mode: QrMode; label: string | null } }
   | { InlineConfirm: { id: string; warning: string; confirm_text: string; cancel_text: string; destructive: boolean } }
+  | { EditableText: { id: string; label: string; value: string; editing: boolean; validation_error: string | null } }
   | "Divider";
 
 export type TextStyle = "Title" | "Subtitle" | "Body" | "Caption";
