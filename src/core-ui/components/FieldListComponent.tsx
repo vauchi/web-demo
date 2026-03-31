@@ -41,8 +41,10 @@ function VisibilityBadge(props: VisibilityBadgeProps) {
             class="visibility-icon visibility-shown"
             title="Visible — click to hide"
             role="button"
+            tabIndex={0}
             aria-label="Hide field"
             onClick={toggleVisibility}
+            onKeyDown={(e: KeyboardEvent) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleVisibility(); } }}
           >&#128065;</span>
         </Match>
         <Match when={props.visibility === "Hidden" && props.mode === "ShowHide"}>
@@ -50,8 +52,10 @@ function VisibilityBadge(props: VisibilityBadgeProps) {
             class="visibility-icon visibility-hidden"
             title="Hidden — click to show"
             role="button"
+            tabIndex={0}
             aria-label="Show field"
             onClick={toggleVisibility}
+            onKeyDown={(e: KeyboardEvent) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleVisibility(); } }}
           >&#128683;</span>
         </Match>
         <Match when={props.visibility === "Shown"}>
@@ -66,9 +70,11 @@ function VisibilityBadge(props: VisibilityBadgeProps) {
               <span
                 class="group-badge"
                 role={props.mode === "PerGroup" ? "button" : undefined}
+                tabIndex={props.mode === "PerGroup" ? 0 : undefined}
                 aria-label={props.mode === "PerGroup" ? `Remove group ${group}` : undefined}
                 title={props.mode === "PerGroup" ? "Click to remove" : undefined}
                 onClick={props.mode === "PerGroup" ? () => removeGroup(group) : undefined}
+                onKeyDown={props.mode === "PerGroup" ? (e: KeyboardEvent) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); removeGroup(group); } } : undefined}
               >{group}</span>
             )}
           </For>

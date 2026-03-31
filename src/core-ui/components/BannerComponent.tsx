@@ -17,8 +17,8 @@ export function BannerComponent(props: Props) {
 
   return (
     <div class="component banner" role="status">
-      <span class="banner-text">{props.text}</span>
-      <button class="banner-action" onClick={handleAction}>
+      <span class="banner-text" id={`${props.action_id}-msg`}>{props.text}</span>
+      <button class="banner-action" onClick={handleAction} aria-describedby={`${props.action_id}-msg`}>
         {props.action_label}
       </button>
     </div>

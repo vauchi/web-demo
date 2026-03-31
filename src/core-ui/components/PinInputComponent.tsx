@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2026 Mattia Egloff <mattia.egloff@pm.me>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import { createSignal, For, Show } from "solid-js";
+import { createEffect, createSignal, For, Show } from "solid-js";
 
 interface Props {
   id: string;
@@ -17,6 +17,10 @@ export function PinInputComponent(props: Props) {
   const [digits, setDigits] = createSignal<string[]>(
     Array.from({ length: props.length }, (_, i) => i < props.filled ? "\u2022" : "")
   );
+
+  createEffect(() => {
+    setDigits(Array.from({ length: props.length }, (_, i) => i < props.filled ? "\u2022" : ""));
+  });
 
   const fireAction = (newDigits: string[]) => {
     const value = newDigits.join("");

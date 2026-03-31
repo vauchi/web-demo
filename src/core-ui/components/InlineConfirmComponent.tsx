@@ -26,7 +26,7 @@ export function InlineConfirmComponent(props: Props) {
   return (
     <div
       class="component inline-confirm"
-      role="alertdialog"
+      role="alert"
       aria-label={props.warning}
     >
       <p class="inline-confirm-warning">{props.warning}</p>
