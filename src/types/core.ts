@@ -37,7 +37,7 @@ export type Component =
   | { SettingsGroup: { id: string; label: string; items: SettingsItem[] } }
   | { ActionList: { id: string; items: ActionListItem[] } }
   | { StatusIndicator: { id: string; icon: string | null; title: string; detail: string | null; status: Status } }
-  | { PinInput: { id: string; label: string; length: number; masked: boolean; validation_error: string | null } }
+  | { PinInput: { id: string; label: string; length: number; filled: number; masked: boolean; validation_error: string | null } }
   | { QrCode: { id: string; data: string; mode: QrMode; label: string | null } }
   | { InlineConfirm: { id: string; warning: string; confirm_text: string; cancel_text: string; destructive: boolean } }
   | { EditableText: { id: string; label: string; value: string; editing: boolean; validation_error: string | null } }

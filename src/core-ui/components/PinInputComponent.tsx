@@ -7,13 +7,16 @@ interface Props {
   id: string;
   label: string;
   length: number;
+  filled: number;
   masked: boolean;
   validation_error: string | null;
   onAction: (actionJson: string) => void;
 }
 
 export function PinInputComponent(props: Props) {
-  const [digits, setDigits] = createSignal<string[]>(Array(props.length).fill(""));
+  const [digits, setDigits] = createSignal<string[]>(
+    Array.from({ length: props.length }, (_, i) => i < props.filled ? "\u2022" : "")
+  );
 
   const fireAction = (newDigits: string[]) => {
     const value = newDigits.join("");
