@@ -62,6 +62,34 @@ test:unit:
     - npm test
   tags: [linux]
 
+# Coverage: vitest with v8 provider (main merges only)
+coverage:unit:
+  stage: test
+  script:
+    - npm ci
+    - npx vitest run --coverage --coverage.reporter=cobertura
+      --coverage.reportsDirectory=coverage
+    - |
+      # Push metrics to Grafana
+      curl --silent --fail \
+        "${CI_API_V4_URL}/projects/77957857/repository/files/scripts%2Fci%2Fpush-coverage.sh/raw?ref=main" \
+        -o push-coverage.sh
+      chmod +x push-coverage.sh
+      ./push-coverage.sh coverage/cobertura-coverage.xml "web-demo" || true
+  coverage: '/All files[^|]*\|[^|]*\s+([\d.]+)/'
+  artifacts:
+    when: always
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage/cobertura-coverage.xml
+    expire_in: 1 week
+  tags: [linux]
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      when: never
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
 pages:
   stage: deploy
   script:
