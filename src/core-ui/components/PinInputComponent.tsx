@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import { createEffect, createSignal, For, Show } from "solid-js";
+import type { A11y } from "../../types/core";
 
 interface Props {
   id: string;
@@ -10,6 +11,7 @@ interface Props {
   filled: number;
   masked: boolean;
   validation_error: string | null;
+  a11y?: A11y;
   onAction: (actionJson: string) => void;
 }
 
@@ -56,7 +58,11 @@ export function PinInputComponent(props: Props) {
   };
 
   return (
-    <div class="component pin-input-container">
+    <div
+      class="component pin-input-container"
+      aria-label={props.a11y?.label}
+      title={props.a11y?.hint}
+    >
       <label>{props.label}</label>
       <div class="pin-input">
         <For each={Array.from({ length: props.length }, (_, i) => i)}>

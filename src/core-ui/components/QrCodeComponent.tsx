@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import { createSignal, createEffect, Match, Show, Switch } from "solid-js";
-import type { QrMode } from "../../types/core";
+import type { A11y, QrMode } from "../../types/core";
 import QRCode from "qrcode";
 
 interface Props {
@@ -10,6 +10,7 @@ interface Props {
   data: string;
   mode: QrMode;
   label: string | null;
+  a11y?: A11y;
 }
 
 export function QrCodeComponent(props: Props) {
@@ -36,7 +37,11 @@ export function QrCodeComponent(props: Props) {
   });
 
   return (
-    <div class="component qr-display">
+    <div
+      class="component qr-display"
+      aria-label={props.a11y?.label}
+      title={props.a11y?.hint}
+    >
       <Show when={props.label}>
         <div class="qr-label">{props.label}</div>
       </Show>

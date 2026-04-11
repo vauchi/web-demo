@@ -3,6 +3,12 @@
 
 /// TypeScript types matching vauchi-core's JSON-serializable UI types.
 
+export interface A11y {
+  label?: string;
+  hint?: string;
+  role?: string;
+}
+
 export interface ScreenModel {
   screen_id: string;
   title: string;
@@ -28,7 +34,7 @@ export interface ScreenAction {
 // Component is a tagged union (serde externally tagged)
 export type Component =
   | { Text: { id: string; content: string; style: TextStyle } }
-  | { TextInput: { id: string; label: string; value: string; placeholder: string | null; max_length: number | null; validation_error: string | null; input_type: InputType } }
+  | { TextInput: { id: string; label: string; value: string; placeholder: string | null; max_length: number | null; validation_error: string | null; input_type: InputType; a11y?: A11y } }
   | { ToggleList: { id: string; label: string; items: ToggleItem[] } }
   | { FieldList: { id: string; fields: FieldDisplay[]; visibility_mode: VisibilityMode; available_groups: string[] } }
   | { CardPreview: { name: string; fields: FieldDisplay[]; group_views: GroupCardView[]; selected_group: string | null } }
@@ -36,11 +42,11 @@ export type Component =
   | { ContactList: { id: string; contacts: ContactItem[]; searchable: boolean } }
   | { SettingsGroup: { id: string; label: string; items: SettingsItem[] } }
   | { ActionList: { id: string; items: ActionListItem[] } }
-  | { StatusIndicator: { id: string; icon: string | null; title: string; detail: string | null; status: Status } }
-  | { PinInput: { id: string; label: string; length: number; filled: number; masked: boolean; validation_error: string | null } }
-  | { QrCode: { id: string; data: string; mode: QrMode; label: string | null } }
-  | { InlineConfirm: { id: string; warning: string; confirm_text: string; cancel_text: string; destructive: boolean } }
-  | { EditableText: { id: string; label: string; value: string; editing: boolean; validation_error: string | null } }
+  | { StatusIndicator: { id: string; icon: string | null; title: string; detail: string | null; status: Status; a11y?: A11y } }
+  | { PinInput: { id: string; label: string; length: number; filled: number; masked: boolean; validation_error: string | null; a11y?: A11y } }
+  | { QrCode: { id: string; data: string; mode: QrMode; label: string | null; a11y?: A11y } }
+  | { InlineConfirm: { id: string; warning: string; confirm_text: string; cancel_text: string; destructive: boolean; a11y?: A11y } }
+  | { EditableText: { id: string; label: string; value: string; editing: boolean; validation_error: string | null; a11y?: A11y } }
   | { Banner: { text: string; action_label: string; action_id: string } }
   | "Divider";
 
