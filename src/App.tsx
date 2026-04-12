@@ -94,7 +94,15 @@ export default function App() {
         <h1>Vauchi Demo</h1>
         <p class="demo-notice">
           This is a sandboxed demo. Data is wiped every hour.
+          The web demo is a limited preview — native apps offer the full
+          experience including offline support, background sync, hardware
+          exchange, and device linking.
         </p>
+        <nav class="store-links" aria-label="Download native apps">
+          <a href="https://vauchi.app" target="_blank" rel="noopener noreferrer">Download for iOS</a>
+          <a href="https://vauchi.app" target="_blank" rel="noopener noreferrer">Download for Android</a>
+          <a href="https://vauchi.app" target="_blank" rel="noopener noreferrer">Download for Desktop</a>
+        </nav>
         <Show when={wasmReady()}>
           <nav class="workflow-tabs" role="tablist" aria-label="Demo workflows">
             <For each={WORKFLOWS}>
