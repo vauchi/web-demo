@@ -35,10 +35,10 @@ export interface ScreenAction {
 export type Component =
   | { Text: { id: string; content: string; style: TextStyle } }
   | { TextInput: { id: string; label: string; value: string; placeholder: string | null; max_length: number | null; validation_error: string | null; input_type: InputType; a11y?: A11y } }
-  | { ToggleList: { id: string; label: string; items: ToggleItem[] } }
-  | { FieldList: { id: string; fields: FieldDisplay[]; visibility_mode: VisibilityMode; available_groups: string[] } }
-  | { CardPreview: { name: string; fields: FieldDisplay[]; group_views: GroupCardView[]; selected_group: string | null } }
-  | { InfoPanel: { id: string; icon: string | null; title: string; items: InfoItem[] } }
+  | { ToggleList: { id: string; label: string; items: ToggleItem[]; a11y?: A11y } }
+  | { FieldList: { id: string; fields: FieldDisplay[]; visibility_mode: VisibilityMode; available_groups: string[]; a11y?: A11y } }
+  | { CardPreview: { name: string; fields: FieldDisplay[]; group_views: GroupCardView[]; selected_group: string | null; a11y?: A11y } }
+  | { InfoPanel: { id: string; icon: string | null; title: string; items: InfoItem[]; a11y?: A11y } }
   | { ContactList: { id: string; contacts: ContactItem[]; searchable: boolean } }
   | { SettingsGroup: { id: string; label: string; items: SettingsItem[] } }
   | { ActionList: { id: string; items: ActionListItem[] } }
@@ -47,7 +47,7 @@ export type Component =
   | { QrCode: { id: string; data: string; mode: QrMode; label: string | null; a11y?: A11y } }
   | { InlineConfirm: { id: string; warning: string; confirm_text: string; cancel_text: string; destructive: boolean; a11y?: A11y } }
   | { EditableText: { id: string; label: string; value: string; editing: boolean; validation_error: string | null; a11y?: A11y } }
-  | { Banner: { text: string; action_label: string; action_id: string } }
+  | { Banner: { text: string; action_label: string; action_id: string; a11y?: A11y } }
   | "Divider";
 
 export type TextStyle = "Title" | "Subtitle" | "Body" | "Caption";
@@ -56,8 +56,8 @@ export type VisibilityMode = "ReadOnly" | "ShowHide" | "PerGroup";
 export type Status = "Pending" | "InProgress" | "Success" | "Failed" | "Warning";
 export type QrMode = "Display" | "Scan";
 
-export interface ToggleItem { id: string; label: string; selected: boolean; subtitle: string | null; }
-export interface FieldDisplay { id: string; field_type: string; label: string; value: string; visibility: UiFieldVisibility; }
+export interface ToggleItem { id: string; label: string; selected: boolean; subtitle: string | null; a11y?: A11y; }
+export interface FieldDisplay { id: string; field_type: string; label: string; value: string; visibility: UiFieldVisibility; a11y?: A11y; }
 export type UiFieldVisibility = "Shown" | "Hidden" | { Groups: string[] };
 export interface GroupCardView { group_name: string; display_name: string; visible_fields: FieldDisplay[]; }
 export interface InfoItem { icon: string | null; title: string; detail: string; }

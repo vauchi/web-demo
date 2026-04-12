@@ -2,23 +2,24 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import { For, Show } from "solid-js";
-import type { InfoItem } from "../../types/core";
+import type { A11y, InfoItem } from "../../types/core";
 
 interface Props {
   id: string;
   icon: string | null;
   title: string;
   items: InfoItem[];
+  a11y?: A11y;
 }
 
 export function InfoPanelComponent(props: Props) {
   return (
-    <div class="component info-panel">
+    <div class="component info-panel" aria-label={props.a11y?.label ?? props.title} title={props.a11y?.hint}>
       <div class="info-panel-header">
         <Show when={props.icon}>
           <span class="info-panel-icon">{props.icon}</span>
         </Show>
-        <h4 class="info-panel-title">{props.title}</h4>
+        <h4 class="info-panel-title" role="heading">{props.title}</h4>
       </div>
       <div class="info-panel-items">
         <For each={props.items}>

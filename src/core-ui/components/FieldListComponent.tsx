@@ -2,13 +2,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import { For, Match, Switch } from "solid-js";
-import type { FieldDisplay, VisibilityMode, UiFieldVisibility } from "../../types/core";
+import type { A11y, FieldDisplay, VisibilityMode, UiFieldVisibility } from "../../types/core";
 
 interface Props {
   id: string;
   fields: FieldDisplay[];
   visibility_mode: VisibilityMode;
   available_groups: string[];
+  a11y?: A11y;
   onAction: (actionJson: string) => void;
 }
 
@@ -86,10 +87,10 @@ function VisibilityBadge(props: VisibilityBadgeProps) {
 
 export function FieldListComponent(props: Props) {
   return (
-    <div class="component field-list">
+    <div class="component field-list" aria-label={props.a11y?.label ?? "Contact fields"} title={props.a11y?.hint}>
       <For each={props.fields}>
         {(field) => (
-          <div class="field-row">
+          <div class="field-row" aria-label={field.a11y?.label ?? `${field.label}: ${field.value}`} title={field.a11y?.hint}>
             <div class="field-info">
               <span class="field-label">{field.label}</span>
               <span class="field-value">{field.value}</span>

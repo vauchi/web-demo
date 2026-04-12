@@ -2,13 +2,14 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import { createSignal, For, Show } from "solid-js";
-import type { FieldDisplay, GroupCardView } from "../../types/core";
+import type { A11y, FieldDisplay, GroupCardView } from "../../types/core";
 
 interface Props {
   name: string;
   fields: FieldDisplay[];
   group_views: GroupCardView[];
   selected_group: string | null;
+  a11y?: A11y;
   onAction: (actionJson: string) => void;
 }
 
@@ -28,7 +29,7 @@ export function CardPreviewComponent(props: Props) {
   };
 
   return (
-    <div class="component card-preview">
+    <div class="component card-preview" aria-label={props.a11y?.label ?? `Card preview: ${props.name}`} title={props.a11y?.hint}>
       <Show when={props.group_views.length > 0}>
         <div class="card-group-tabs">
           <button

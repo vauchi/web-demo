@@ -2,12 +2,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import { For } from "solid-js";
-import type { ToggleItem } from "../../types/core";
+import type { A11y, ToggleItem } from "../../types/core";
 
 interface Props {
   id: string;
   label: string;
   items: ToggleItem[];
+  a11y?: A11y;
   onAction: (actionJson: string) => void;
 }
 
@@ -19,13 +20,13 @@ export function ToggleListComponent(props: Props) {
   };
 
   return (
-    <div class="component toggle-list" role="group" aria-label={props.label}>
+    <div class="component toggle-list" role="group" aria-label={props.a11y?.label ?? props.label} title={props.a11y?.hint}>
       <div class="toggle-list-label">{props.label}</div>
       <ul class="toggle-items">
         <For each={props.items}>
           {(item) => (
             <li class="toggle-item">
-              <label class="toggle-item-label">
+              <label class="toggle-item-label" aria-label={item.a11y?.label ?? item.label} title={item.a11y?.hint}>
                 <input
                   type="checkbox"
                   checked={item.selected}
