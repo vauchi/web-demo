@@ -99,9 +99,9 @@ export default function App() {
           exchange, and device linking.
         </p>
         <nav class="store-links" aria-label="Download native apps">
-          <a href="https://vauchi.app" target="_blank" rel="noopener noreferrer">Download for iOS</a>
-          <a href="https://vauchi.app" target="_blank" rel="noopener noreferrer">Download for Android</a>
-          <a href="https://vauchi.app" target="_blank" rel="noopener noreferrer">Download for Desktop</a>
+          <a href="https://vauchi.app/#ios" target="_blank" rel="noopener noreferrer">iOS</a>
+          <a href="https://vauchi.app/#android" target="_blank" rel="noopener noreferrer">Android</a>
+          <a href="https://vauchi.app/#desktop" target="_blank" rel="noopener noreferrer">Desktop</a>
         </nav>
         <Show when={wasmReady()}>
           <nav class="workflow-tabs" role="tablist" aria-label="Demo workflows">
