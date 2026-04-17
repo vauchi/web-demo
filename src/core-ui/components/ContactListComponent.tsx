@@ -12,16 +12,11 @@ interface Props {
 }
 
 export function ContactListComponent(props: Props) {
+  // Local signal is for the input's controlled value only; filtering happens
+  // in core's ContactListEngine via SearchChanged → UpdateScreen. props.contacts
+  // always arrives pre-filtered — a second client-side filter would violate
+  // ADR-021 (single source of truth) and double-filter after the rerender.
   const [query, setQuery] = createSignal("");
-
-  const filteredContacts = () => {
-    const q = query().toLowerCase();
-    if (!q) return props.contacts;
-    return props.contacts.filter(c =>
-      c.name.toLowerCase().includes(q) ||
-      (c.subtitle && c.subtitle.toLowerCase().includes(q))
-    );
-  };
 
   const onSearch = (value: string) => {
     setQuery(value);
@@ -56,7 +51,7 @@ export function ContactListComponent(props: Props) {
         />
       </Show>
       <div class="contact-items" role="listbox" aria-label="Contacts">
-        <For each={filteredContacts()}>
+        <For each={props.contacts}>
           {(contact) => (
             <div
               class="contact-item"
