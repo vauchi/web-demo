@@ -140,14 +140,24 @@ secret_detection:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
-# Accessibility (axe-core) — must pass. Hard gate.
-test:a11y:
+# Shared Playwright job base — image, runner tag, and the 2-step
+# dependency install that all three Playwright jobs need. Extracted
+# as part of Phase 3 T3.6 of 2026-04-22-ci-pipeline-health-audit
+# so `npm ci` + `npx playwright install` live in exactly one place.
+# Consumers add `extends: .playwright-base` and their own build /
+# test script — see test:a11y, test:vrt, test:vrt:record below.
+.playwright-base:
   stage: test
   image: mcr.microsoft.com/playwright:v1.58.2-noble
   tags: [docker]
-  script:
+  before_script:
     - npm ci
     - npx playwright install --with-deps chromium
+
+# Accessibility (axe-core) — must pass. Hard gate.
+test:a11y:
+  extends: .playwright-base
+  script:
     - npm run build
     - npx playwright test tests/playwright/a11y.spec.ts
   rules:
@@ -168,9 +178,7 @@ test:a11y:
 # the linux baselines; flip to blocking after that completes (mirror
 # linux-qt/linux-gtk migration pattern).
 test:vrt:
-  stage: test
-  image: mcr.microsoft.com/playwright:v1.58.2-noble
-  tags: [docker]
+  extends: .playwright-base
   variables:
     VRT_PLATFORM: web-demo
     VRT_SCREENSHOT_DIR: tests/playwright/vrt.spec.ts-snapshots
@@ -188,8 +196,6 @@ test:vrt:
         exit 0
       fi
       echo "✅ Found $BASELINE_COUNT linux snapshot baselines — running validation"
-    - npm ci
-    - npx playwright install --with-deps chromium
     - npm run build
     - npx playwright test tests/playwright/vrt.spec.ts
   after_script:
@@ -208,16 +214,12 @@ test:vrt:
 # to the branch. Mirrors the test:snapshots:record pattern used on
 # linux-gtk, linux-qt, macos, ios. PROJECT_ACCESS_TOKEN required.
 test:vrt:record:
-  stage: test
-  image: mcr.microsoft.com/playwright:v1.58.2-noble
-  tags: [docker]
+  extends: .playwright-base
   when: manual
   allow_failure: true
   variables:
     GIT_DEPTH: "0"
   script:
-    - npm ci
-    - npx playwright install --with-deps chromium
     - npm run build
     - npx playwright test tests/playwright/vrt.spec.ts --update-snapshots || true
     - git config user.name "vauchi-ci-bot"
