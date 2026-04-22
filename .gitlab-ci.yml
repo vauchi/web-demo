@@ -154,8 +154,19 @@ test:a11y:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
-# Visual Regression (screenshot comparison) — generates baselines on first run.
-# Download artifacts to update baselines: glab api projects/vauchi%2Fweb-demo/jobs/JOB_ID/artifacts
+# Visual Regression — diff against committed baselines, fail on regression.
+# Self-detecting (mirror of macos/ios test:snapshots pattern): if no
+# linux-platform baselines exist (e.g. fresh repo or platform mismatch
+# from a darwin-only commit), skip with an advisory message instead of
+# silently passing. CI is the single source of truth for baselines —
+# generate them via test:vrt:record, never with `--update-snapshots`
+# inline (which silently regenerates every run and hides regressions).
+# Audited 2026-04-22 T2.1.
+#
+# allow_failure: true retained for now because the existing committed
+# baseline is `darwin` only — first record run on linux CI will land
+# the linux baselines; flip to blocking after that completes (mirror
+# linux-qt/linux-gtk migration pattern).
 test:vrt:
   stage: test
   image: mcr.microsoft.com/playwright:v1.58.2-noble
@@ -164,10 +175,23 @@ test:vrt:
     VRT_PLATFORM: web-demo
     VRT_SCREENSHOT_DIR: tests/playwright/vrt.spec.ts-snapshots
   script:
+    - |
+      BASELINE_COUNT=0
+      if [ -d tests/playwright/vrt.spec.ts-snapshots ]; then
+        BASELINE_COUNT=$(find tests/playwright/vrt.spec.ts-snapshots -name '*-linux.png' | wc -l | tr -d ' ')
+      fi
+      if [ "$BASELINE_COUNT" -eq 0 ]; then
+        echo "⚠️  SNAPSHOT BASELINES MISSING — no linux baselines in vrt.spec.ts-snapshots/"
+        echo "   Use the 'test:vrt:record' manual job in this pipeline to generate them."
+        echo "   CI is the single source of truth — do not record locally."
+        echo "   Snapshot validation skipped — no baselines to compare against."
+        exit 0
+      fi
+      echo "✅ Found $BASELINE_COUNT linux snapshot baselines — running validation"
     - npm ci
     - npx playwright install --with-deps chromium
     - npm run build
-    - npx playwright test tests/playwright/vrt.spec.ts --update-snapshots
+    - npx playwright test tests/playwright/vrt.spec.ts
   after_script:
     - !reference [.vrt-upload-script, script]
   artifacts:
@@ -176,6 +200,49 @@ test:vrt:
       - tests/playwright/vrt.spec.ts-snapshots/
       - test-results/
   allow_failure: true
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+# Manual: regenerate Playwright VRT baselines on CI and commit them
+# to the branch. Mirrors the test:snapshots:record pattern used on
+# linux-gtk, linux-qt, macos, ios. PROJECT_ACCESS_TOKEN required.
+test:vrt:record:
+  stage: test
+  image: mcr.microsoft.com/playwright:v1.58.2-noble
+  tags: [docker]
+  when: manual
+  allow_failure: true
+  variables:
+    GIT_DEPTH: "0"
+  script:
+    - npm ci
+    - npx playwright install --with-deps chromium
+    - npm run build
+    - npx playwright test tests/playwright/vrt.spec.ts --update-snapshots || true
+    - git config user.name "vauchi-ci-bot"
+    - git config user.email "ci@vauchi.app"
+    - git add tests/playwright/vrt.spec.ts-snapshots/
+    - |
+      if git diff --cached --quiet; then
+        echo "✅ No baseline changes — nothing to commit"
+        exit 0
+      fi
+      CHANGED=$(git diff --cached --stat | tail -1)
+      git commit -m "test: record web-demo VRT baselines [ci]
+
+      ${CHANGED}
+
+      Co-Authored-By: vauchi-ci-bot <ci@vauchi.app>"
+      PUSH_URL="https://vauchi-gitlab-runner:${PROJECT_ACCESS_TOKEN}@gitlab.com/${CI_PROJECT_PATH}.git"
+      git push "$PUSH_URL" HEAD:${CI_COMMIT_REF_NAME}
+      echo "✅ Baselines committed and pushed — verify pipeline will trigger"
+  artifacts:
+    when: always
+    paths:
+      - tests/playwright/vrt.spec.ts-snapshots/
+      - test-results/
+    expire_in: 30 days
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
