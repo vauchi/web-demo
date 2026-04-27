@@ -9,6 +9,14 @@ interface Props {
   fields: FieldDisplay[];
   group_views: GroupCardView[];
   selected_group: string | null;
+  /**
+   * G1 (ADR-021/043): pre-filtered list emitted by core's
+   * `build_visible_fields` helper. Frontends should render this
+   * directly rather than reproducing the filter / fallback in TS.
+   * Optional for backwards compat with pre-G1 ScreenModel JSON;
+   * falls back to `fields` when absent.
+   */
+  visible_fields?: FieldDisplay[];
   a11y?: A11y;
   onAction: (actionJson: string) => void;
 }
@@ -20,13 +28,7 @@ export function CardPreviewComponent(props: Props) {
     }));
   };
 
-  const activeFields = () => {
-    if (props.selected_group && props.group_views.length > 0) {
-      const view = props.group_views.find(v => v.group_name === props.selected_group);
-      return view ? view.visible_fields : props.fields;
-    }
-    return props.fields;
-  };
+  const activeFields = () => props.visible_fields ?? props.fields;
 
   return (
     <div class="component card-preview" aria-label={props.a11y?.label ?? `Card preview: ${props.name}`} title={props.a11y?.hint}>

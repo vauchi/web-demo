@@ -37,7 +37,7 @@ export type Component =
   | { TextInput: { id: string; label: string; value: string; placeholder: string | null; max_length: number | null; validation_error: string | null; input_type: InputType; a11y?: A11y } }
   | { ToggleList: { id: string; label: string; items: ToggleItem[]; a11y?: A11y } }
   | { FieldList: { id: string; fields: FieldDisplay[]; visibility_mode: VisibilityMode; available_groups: string[]; a11y?: A11y } }
-  | { CardPreview: { name: string; fields: FieldDisplay[]; group_views: GroupCardView[]; selected_group: string | null; a11y?: A11y } }
+  | { CardPreview: { name: string; fields: FieldDisplay[]; group_views: GroupCardView[]; selected_group: string | null; visible_fields?: FieldDisplay[]; a11y?: A11y } }
   | { InfoPanel: { id: string; icon: string | null; title: string; items: InfoItem[]; a11y?: A11y } }
   | { ContactList: { id: string; contacts: ContactItem[]; searchable: boolean } }
   | { SettingsGroup: { id: string; label: string; items: SettingsItem[] } }
