@@ -29,7 +29,7 @@ body {
 .demo-notice {
   font-size: 12px;
   color: var(--color-text-secondary);
-} /* TODO: map 12px to token */
+}
 .store-links {
   display: flex;
   gap: var(--spacing-sm);
@@ -44,7 +44,7 @@ body {
   padding: var(--spacing-xs) var(--spacing-sm);
   border: 1px solid var(--color-accent);
   border-radius: var(--radius-md);
-} /* TODO: map 12px to token */
+}
 .store-links a:hover {
   background: color-mix(in srgb, var(--color-accent) 10%, transparent);
 }
@@ -82,7 +82,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 12px;
-} /* TODO: map 12px gap to token */
+}
 .actions {
   display: flex;
   gap: var(--spacing-sm);
@@ -94,7 +94,7 @@ body {
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border);
   cursor: pointer;
-} /* TODO: map 10px/20px padding to token */
+}
 .action-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
@@ -125,7 +125,7 @@ body {
   background: var(--color-border);
   border-radius: 2px;
   overflow: hidden;
-} /* TODO: map 2px radius to token */
+}
 .progress-fill {
   height: 100%;
   background: var(--color-accent);
@@ -151,12 +151,16 @@ body {
   color: var(--color-text-secondary);
 }
 .text-body {
+  /* BUG: uses caption-size (14px) instead of body-size (16px).
+     TextComponent's Body style is intended for body-sized text per
+     ADR-038 vocabulary. Fixing this is a 2px size regression for
+     every TextStyle::Body callsite — bundle with a snapshot regen. */
   font-size: var(--caption-size);
-} /* TODO: 14px mapped to caption; body-size token is 16px */
+}
 .text-caption {
   font-size: 12px;
   color: var(--color-text-secondary);
-} /* TODO: map 12px to token */
+}
 
 /* === TextInput === */
 .text-input label {
@@ -171,18 +175,18 @@ body {
   border-radius: 6px;
   box-sizing: border-box;
   font-size: var(--caption-size);
-} /* TODO: map 6px radius to token */
+}
 .text-input input:focus {
   outline: none;
   border-color: var(--color-accent);
   box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
-} /* TODO: map focus ring color to token */
+}
 .validation-error {
   color: var(--color-error);
   font-size: 12px;
   margin-top: var(--spacing-xs);
   display: block;
-} /* TODO: map 12px to token */
+}
 
 /* === ToggleList === */
 .toggle-list .toggle-list-label {
@@ -196,7 +200,7 @@ body {
 }
 .toggle-item {
   padding: 6px 0;
-} /* TODO: map 6px to token */
+}
 .toggle-item-label {
   display: flex;
   align-items: center;
@@ -221,7 +225,7 @@ body {
   align-items: center;
   padding: var(--spacing-sm) 12px;
   border-bottom: 1px solid var(--color-bg-secondary);
-} /* TODO: map 12px to token */
+}
 .field-row:last-child {
   border-bottom: none;
 }
@@ -229,11 +233,11 @@ body {
   display: flex;
   flex-direction: column;
   gap: 2px;
-} /* TODO: map 2px to token */
+}
 .field-label {
   font-size: 12px;
   color: var(--color-text-secondary);
-} /* TODO: map 12px to token */
+}
 .field-value {
   font-size: var(--caption-size);
 }
@@ -254,7 +258,7 @@ body {
   background: color-mix(in srgb, var(--color-accent) 13%, transparent);
   color: var(--color-accent);
   border-radius: var(--radius-sm);
-} /* TODO: map 11px/2px/6px to token */
+}
 
 /* === CardPreview === */
 .card-preview {
@@ -268,7 +272,7 @@ body {
   gap: var(--spacing-xs);
   margin-bottom: 12px;
   overflow-x: auto;
-} /* TODO: map 12px to token */
+}
 .card-tab {
   padding: var(--spacing-xs) 12px;
   border-radius: var(--spacing-md);
@@ -277,7 +281,7 @@ body {
   cursor: pointer;
   font-size: 12px;
   white-space: nowrap;
-} /* TODO: map 12px to token */
+}
 .card-tab-active {
   background: var(--color-accent);
   color: white;
@@ -288,7 +292,7 @@ body {
   align-items: center;
   gap: 12px;
   margin-bottom: 12px;
-} /* TODO: map 12px to token */
+}
 .card-avatar {
   width: 48px;
   height: 48px;
@@ -301,7 +305,7 @@ body {
   font-size: 20px;
   font-weight: 600;
   flex-shrink: 0;
-} /* TODO: map 48px/20px to token */
+}
 .card-name {
   margin: 0;
   font-size: var(--subtitle-size);
@@ -315,14 +319,14 @@ body {
   justify-content: space-between;
   padding: 6px 0;
   border-bottom: 1px solid var(--color-bg-secondary);
-} /* TODO: map 6px to token */
+}
 .card-field-row:last-child {
   border-bottom: none;
 }
 .card-field-label {
   font-size: 12px;
   color: var(--color-text-secondary);
-} /* TODO: map 12px to token */
+}
 .card-field-value {
   font-size: var(--caption-size);
 }
@@ -333,7 +337,7 @@ body {
   border-radius: var(--radius-md);
   padding: 12px;
   background: var(--color-bg-secondary);
-} /* TODO: map 12px to token */
+}
 .info-panel-header {
   display: flex;
   align-items: center;
@@ -342,7 +346,7 @@ body {
 }
 .info-panel-icon {
   font-size: 20px;
-} /* TODO: map 20px to token */
+}
 .info-panel-title {
   margin: 0;
   font-size: var(--caption-size);
@@ -357,7 +361,7 @@ body {
   display: flex;
   justify-content: space-between;
   font-size: 13px;
-} /* TODO: map 13px to token */
+}
 .info-label {
   color: var(--color-text-secondary);
 }
@@ -374,7 +378,7 @@ body {
   border-radius: 6px;
   box-sizing: border-box;
   font-size: var(--caption-size);
-} /* TODO: map 6px radius to token */
+}
 .contact-list .search:focus {
   outline: none;
   border-color: var(--color-accent);
@@ -390,7 +394,7 @@ body {
   padding: var(--spacing-sm);
   cursor: pointer;
   border-radius: 6px;
-} /* TODO: map 12px/6px to token */
+}
 .contact-item:hover {
   background: var(--color-bg-secondary);
 }
@@ -406,7 +410,7 @@ body {
   font-weight: 600;
   font-size: var(--caption-size);
   flex-shrink: 0;
-} /* TODO: map 36px to token */
+}
 .contact-info {
   display: flex;
   flex-direction: column;
@@ -418,7 +422,7 @@ body {
 .contact-subtitle {
   font-size: 12px;
   color: var(--color-text-secondary);
-} /* TODO: map 12px to token */
+}
 
 /* === SettingsGroup === */
 .settings-group .settings-label {
@@ -437,7 +441,7 @@ body {
   align-items: center;
   padding: 10px 12px;
   border-bottom: 1px solid var(--color-bg-secondary);
-} /* TODO: map 10px/12px to token */
+}
 .settings-item:last-child {
   border-bottom: none;
 }
@@ -454,7 +458,7 @@ body {
   position: relative;
   border: none;
   flex-shrink: 0;
-} /* TODO: map 12px radius to token */
+}
 .switch:checked {
   background: var(--color-success);
 }
@@ -468,7 +472,7 @@ body {
   top: 2px;
   left: 2px;
   transition: transform 0.2s;
-} /* TODO: map 20px/2px to token */
+}
 .switch:checked::before {
   transform: translateX(20px);
 }
@@ -481,7 +485,7 @@ body {
 .settings-detail {
   font-size: 13px;
   color: var(--color-text-secondary);
-} /* TODO: map 13px to token */
+}
 .nav-arrow {
   font-size: var(--subtitle-size);
   color: var(--color-border);
@@ -510,7 +514,7 @@ body {
   cursor: pointer;
   border-radius: 6px;
   font-size: var(--caption-size);
-} /* TODO: map 10px/6px to token */
+}
 .action-item:hover {
   background: var(--color-bg-secondary);
 }
@@ -531,10 +535,10 @@ body {
   align-items: center;
   gap: 12px;
   padding: var(--spacing-sm);
-} /* TODO: map 12px to token */
+}
 .status-icon {
   font-size: 20px;
-} /* TODO: map 20px to token */
+}
 .status-content {
   display: flex;
   flex-direction: column;
@@ -547,13 +551,13 @@ body {
 .status-detail {
   font-size: 12px;
   color: var(--color-text-secondary);
-} /* TODO: map 12px to token */
+}
 .status-badge {
   padding: 2px var(--spacing-sm);
   border-radius: var(--radius-sm);
   font-size: 12px;
   font-weight: 600;
-} /* TODO: map 2px/12px to token */
+}
 .status-Pending {
   background: var(--color-border);
   color: var(--color-text-secondary);
@@ -593,12 +597,12 @@ body {
   font-size: 20px;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
-} /* TODO: map 40px/48px/20px to token */
+}
 .pin-input input:focus {
   outline: none;
   border-color: var(--color-accent);
   box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
-} /* TODO: map focus ring color to token */
+}
 
 /* === QrCode === */
 .qr-display {
@@ -609,7 +613,7 @@ body {
   font-weight: 600;
   margin-bottom: 12px;
   font-size: var(--caption-size);
-} /* TODO: map 12px to token */
+}
 .qr-image {
   border-radius: var(--radius-md);
   display: block;
@@ -619,7 +623,7 @@ body {
   color: var(--color-error);
   font-size: 13px;
   padding: var(--spacing-md);
-} /* TODO: map 13px to token */
+}
 .qr-placeholder {
   width: 200px;
   height: 200px;
@@ -629,7 +633,7 @@ body {
   justify-content: center;
   margin: 0 auto;
   border-radius: var(--radius-lg);
-} /* TODO: map 200px to token */
+}
 .qr-scan {
   border-color: var(--color-accent);
   background: color-mix(in srgb, var(--color-accent) 3%, transparent);
@@ -641,17 +645,17 @@ body {
   gap: var(--spacing-sm);
   color: var(--color-text-secondary);
   font-size: 13px;
-} /* TODO: map 13px to token */
+}
 .qr-icon {
   font-size: 28px;
-} /* TODO: map 28px to token */
+}
 .qr-data-hint {
   font-size: 11px;
   color: var(--color-text-secondary);
   max-width: 160px;
   overflow: hidden;
   text-overflow: ellipsis;
-} /* TODO: map 11px/160px to token */
+}
 
 /* === InlineConfirm === */
 .inline-confirm {
@@ -745,7 +749,7 @@ body {
   border-radius: var(--radius-md);
   cursor: pointer;
   font-size: var(--caption-size);
-} /* TODO: map 10px/20px to token */
+}
 .btn-confirm {
   background: var(--color-accent);
   color: white;
@@ -754,7 +758,7 @@ body {
   border-radius: var(--radius-md);
   cursor: pointer;
   font-size: var(--caption-size);
-} /* TODO: map 10px/20px to token */
+}
 .btn-destructive {
   background: var(--color-error);
   color: white;
@@ -763,7 +767,7 @@ body {
   border-radius: var(--radius-md);
   cursor: pointer;
   font-size: var(--caption-size);
-} /* TODO: map 10px/20px to token */
+}
 
 /* === Loading spinner === */
 .spinner {
@@ -781,7 +785,7 @@ body {
   gap: 12px;
   padding: var(--spacing-xl);
   color: var(--color-text-secondary);
-} /* TODO: map 12px to token */
+}
 @keyframes spin {
   to {
     transform: rotate(360deg);
@@ -816,7 +820,7 @@ body {
 .toast span {
   font-size: 12px;
   color: var(--color-text-secondary);
-} /* TODO: map 12px to token */
+}
 @keyframes toast-in {
   from {
     opacity: 0;
