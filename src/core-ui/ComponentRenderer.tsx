@@ -19,6 +19,14 @@ import { InlineConfirmComponent } from "./components/InlineConfirmComponent";
 import { EditableTextComponent } from "./components/EditableTextComponent";
 import { BannerComponent } from "./components/BannerComponent";
 import { DividerComponent } from "./components/DividerComponent";
+import { RowComponent } from "./components/RowComponent";
+import { ListComponent } from "./components/ListComponent";
+import { PreviewComponent } from "./components/PreviewComponent";
+import { DropdownComponent } from "./components/DropdownComponent";
+import { SliderComponent } from "./components/SliderComponent";
+import { AvatarPreviewComponent } from "./components/AvatarPreviewComponent";
+import { IndicatorComponent } from "./components/IndicatorComponent";
+import { SectionedActionListComponent } from "./components/SectionedActionListComponent";
 
 interface Props {
   component: Component;
@@ -79,6 +87,30 @@ export function ComponentRenderer(props: Props) {
       </Match>
       <Match when={"Banner" in comp && (comp as any).Banner}>
         {(data) => <BannerComponent {...data()} onAction={props.onAction} />}
+      </Match>
+      <Match when={"Row" in comp && (comp as any).Row}>
+        {(data) => <RowComponent {...data()} onAction={props.onAction} />}
+      </Match>
+      <Match when={"List" in comp && (comp as any).List}>
+        {(data) => <ListComponent {...data()} onAction={props.onAction} />}
+      </Match>
+      <Match when={"Preview" in comp && (comp as any).Preview}>
+        {(data) => <PreviewComponent {...data()} onAction={props.onAction} />}
+      </Match>
+      <Match when={"Dropdown" in comp && (comp as any).Dropdown}>
+        {(data) => <DropdownComponent {...data()} onAction={props.onAction} />}
+      </Match>
+      <Match when={"Slider" in comp && (comp as any).Slider}>
+        {(data) => <SliderComponent {...data()} onAction={props.onAction} />}
+      </Match>
+      <Match when={"AvatarPreview" in comp && (comp as any).AvatarPreview}>
+        {(data) => <AvatarPreviewComponent {...data()} onAction={props.onAction} />}
+      </Match>
+      <Match when={"Indicator" in comp && (comp as any).Indicator}>
+        {(data) => <IndicatorComponent {...data()} onAction={props.onAction} />}
+      </Match>
+      <Match when={"SectionedActionList" in comp && (comp as any).SectionedActionList}>
+        {(data) => <SectionedActionListComponent {...data()} onAction={props.onAction} />}
       </Match>
     </Switch>
   );

@@ -16,7 +16,11 @@ export interface ScreenModel {
   components: Component[];
   actions: ScreenAction[];
   progress: Progress | null;
+  // Serde omits this when "Scroll" (default); "Fixed" disables the scroll container.
+  layout?: ScreenLayout;
 }
+
+export type ScreenLayout = "Scroll" | "Fixed";
 
 export interface Progress {
   current_step: number;
@@ -48,6 +52,14 @@ export type Component =
   | { InlineConfirm: { id: string; warning: string; confirm_text: string; cancel_text: string; destructive: boolean; a11y?: A11y } }
   | { EditableText: { id: string; label: string; value: string; editing: boolean; validation_error: string | null; a11y?: A11y } }
   | { Banner: { text: string; action_label: string; action_id: string; a11y?: A11y } }
+  | { Row: { id: string; items: Component[] } }
+  | { List: { id: string; items: Item[]; searchable: boolean } }
+  | { Preview: { name: string; initials: string; avatar_data?: number[] | null; fields: FieldDisplay[]; variants: PreviewVariant[]; selected_variant: string | null; visible_fields?: FieldDisplay[]; a11y?: A11y } }
+  | { Dropdown: { id: string; label: string; selected: string | null; options: DropdownOption[]; a11y?: A11y } }
+  | { AvatarPreview: { id: string; image_data?: number[] | null; initials: string; bg_color?: [number, number, number] | null; brightness?: number; editable?: boolean; a11y?: A11y } }
+  | { Slider: { id: string; label: string; value: number; min: number; max: number; step?: number; min_icon?: string | null; max_icon?: string | null; a11y?: A11y } }
+  | { Indicator: { id: string; label: string; kind: IndicatorKind; action_id?: string | null; a11y?: A11y } }
+  | { SectionedActionList: { id: string; sections: Section[] } }
   | "Divider";
 
 export type TextStyle = "Title" | "Subtitle" | "Body" | "Caption";
@@ -55,6 +67,8 @@ export type InputType = "Text" | "Phone" | "Email" | "Password";
 export type VisibilityMode = "ReadOnly" | "ShowHide" | "PerGroup";
 export type Status = "Pending" | "InProgress" | "Success" | "Failed" | "Warning";
 export type QrMode = "Display" | "Scan";
+export type IndicatorKind = "Active" | "Error" | "Neutral" | "Busy";
+export type ListItemActionKind = "archive" | "unarchive" | "hide" | "unhide" | "delete" | "undelete" | "custom";
 
 export interface ToggleItem { id: string; label: string; selected: boolean; subtitle: string | null; a11y?: A11y; }
 export interface FieldDisplay { id: string; field_type: string; label: string; value: string; visibility: UiFieldVisibility; a11y?: A11y; }
@@ -66,6 +80,19 @@ export interface SettingsItem { id: string; label: string; kind: SettingsItemKin
 export type SettingsItemKind = { Toggle: { enabled: boolean } } | { Value: { value: string } } | { Link: { detail: string | null } } | { Destructive: { label: string } };
 export interface ActionListItem { id: string; label: string; icon: string | null; detail: string | null; }
 
+// Component::List item shape (Wire Humble: UI-shaped, domain-agnostic).
+export interface Item { id: string; name: string; subtitle: string | null; avatar_initials: string; status: string | null; actions?: ListItemAction[]; a11y?: A11y; }
+export interface ListItemAction { id: string; label: string; kind: ListItemActionKind; destructive?: boolean; }
+
+// Component::Preview alternate-view shape.
+export interface PreviewVariant { variant_id: string; display_name: string; visible_fields: FieldDisplay[]; }
+
+// Component::Dropdown option shape.
+export interface DropdownOption { id: string; label: string; }
+
+// Component::SectionedActionList section shape.
+export interface Section { id: string; label: string; items: ActionListItem[]; }
+
 // UserAction tagged union
 export type UserAction =
   | { TextChanged: { component_id: string; value: string } }
@@ -75,5 +102,7 @@ export type UserAction =
   | { GroupViewSelected: { group_name: string | null } }
   | { SearchChanged: { component_id: string; query: string } }
   | { ListItemSelected: { component_id: string; item_id: string } }
+  | { ListItemAction: { component_id: string; item_id: string; action_id: string } }
   | { SettingsToggled: { component_id: string; item_id: string } }
+  | { SliderChanged: { component_id: string; value_milli: number } }
   | { UndoPressed: { action_id: string } };

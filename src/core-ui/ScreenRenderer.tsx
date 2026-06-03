@@ -15,8 +15,15 @@ export function ScreenRenderer(props: Props) {
     props.onAction(JSON.stringify({ ActionPressed: { action_id: actionId } }));
   };
 
+  // Default layout is "Scroll" (serde omits the field). When "Fixed", the
+  // screen container must not scroll.
+  const isFixed = () => props.screen.layout === "Fixed";
+
   return (
-    <div class="screen">
+    <div
+      class={`screen${isFixed() ? " screen-fixed" : ""}`}
+      style={isFixed() ? { overflow: "hidden" } : undefined}
+    >
       <h2>{props.screen.title}</h2>
       <Show when={props.screen.subtitle}>
         <p class="subtitle">{props.screen.subtitle}</p>
