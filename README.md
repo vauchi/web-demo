@@ -6,14 +6,15 @@
 [![Pipeline](https://img.shields.io/endpoint?url=https://vauchi.gitlab.io/web-demo/badges/pipeline.json&label=pipeline)](https://gitlab.com/vauchi/web-demo/-/pipelines)
 [![REUSE](https://api.reuse.software/badge/gitlab.com/vauchi/web-demo)](https://api.reuse.software/info/gitlab.com/vauchi/web-demo)
 
-> [!WARNING]
-> **Pre-Alpha Software** - This project is under heavy
-> development and not ready for production use.
-> APIs may change without notice. Use at your own risk.
+> [!NOTE]
+> **You're early — and that's the point.** Vauchi is pre-alpha and
+> under heavy development: not yet ready for production, and APIs may
+> change without notice. If you're here now, you can help shape it —
+> try it, break it, and tell us what's missing.
 
 # Vauchi Web Demo
 
-Browser-based demo of Vauchi — privacy-focused contact card exchange.
+Browser-based demo of Vauchi — living contact cards, exchanged in person.
 
 Built with SolidJS + WASM. Core compiled to
 `wasm32-unknown-unknown` with hybrid WebCrypto + RustCrypto
