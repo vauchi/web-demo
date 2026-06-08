@@ -71,7 +71,6 @@ export default function App() {
         console.warn("Action error:", result.error);
         return;
       }
-      // Handle ActionResult variants
       if (result.ShowAlert) {
         showToast({ title: result.ShowAlert.title, message: result.ShowAlert.message });
       }

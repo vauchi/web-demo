@@ -16,7 +16,6 @@ test.describe("Accessibility", () => {
     // Wait for app to finish loading (WASM init + first screen render)
     await page.waitForSelector(".app-header", { timeout: 15_000 });
 
-    // Wait a bit for WASM screen to render
     await page.waitForTimeout(2_000);
 
     const results = await new AxeBuilder({ page })
@@ -44,7 +43,6 @@ test.describe("Accessibility", () => {
     await page.goto("/");
     await page.waitForSelector(".app-header", { timeout: 15_000 });
 
-    // H1 should exist
     const h1 = page.locator("h1");
     await expect(h1).toHaveCount(1);
   });
@@ -61,7 +59,6 @@ test.describe("Accessibility", () => {
       return el ? el.tagName : null;
     });
 
-    // Something should be focused after Tab
     expect(focused).not.toBeNull();
   });
 
@@ -70,7 +67,6 @@ test.describe("Accessibility", () => {
     await page.waitForSelector(".app-header", { timeout: 15_000 });
     await page.waitForTimeout(2_000);
 
-    // All img elements should have alt attributes
     const images = page.locator("img");
     const count = await images.count();
     for (let i = 0; i < count; i++) {
