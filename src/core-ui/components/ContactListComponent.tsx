@@ -38,6 +38,7 @@ export function ContactListComponent(props: Props) {
     }
   };
 
+  // TODO(HUMBLE): W — "Search contacts" / "Contacts" placeholder and labels; core should supply them (see _private/docs/problems/2026-07-06-desktop-tui-web-domain-shell-violations)
   return (
     <div class="component contact-list">
       <Show when={props.searchable}>

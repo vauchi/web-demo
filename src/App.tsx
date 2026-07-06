@@ -11,6 +11,7 @@ interface Toast {
   message: string;
 }
 
+// TODO(HUMBLE): W — hardcodes demo workflow catalogue; core should drive workflow list (see _private/docs/problems/2026-07-06-desktop-tui-web-domain-shell-violations)
 const WORKFLOWS = [
   { id: "onboarding", label: "Onboarding" },
   { id: "emergency_shred", label: "Emergency Shred" },
@@ -74,6 +75,7 @@ export default function App() {
       if (result.ShowAlert) {
         showToast({ title: result.ShowAlert.title, message: result.ShowAlert.message });
       }
+      // TODO(HUMBLE): W — frontend synthesizes toast messages for Complete / WipeComplete; core should emit Toast result (see _private/docs/problems/2026-07-06-desktop-tui-web-domain-shell-violations)
       if (result.Complete || result === "Complete") {
         showToast({ title: "Done", message: "Workflow completed." });
       }

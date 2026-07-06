@@ -30,6 +30,7 @@ export function CardPreviewComponent(props: Props) {
 
   const activeFields = () => props.visible_fields ?? props.fields;
 
+  // TODO(HUMBLE): W — default aria-label embeds "Card preview"; core should supply a11y.label (see _private/docs/problems/2026-07-06-desktop-tui-web-domain-shell-violations)
   return (
     <div class="component card-preview" aria-label={props.a11y?.label ?? `Card preview: ${props.name}`} title={props.a11y?.hint}>
       <Show when={props.group_views.length > 0}>

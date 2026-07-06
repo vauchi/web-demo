@@ -86,6 +86,7 @@ function VisibilityBadge(props: VisibilityBadgeProps) {
 }
 
 export function FieldListComponent(props: Props) {
+  // TODO(HUMBLE): W — default aria-label "Contact fields"; core should supply a11y.label (see _private/docs/problems/2026-07-06-desktop-tui-web-domain-shell-violations)
   return (
     <div class="component field-list" aria-label={props.a11y?.label ?? "Contact fields"} title={props.a11y?.hint}>
       <For each={props.fields}>

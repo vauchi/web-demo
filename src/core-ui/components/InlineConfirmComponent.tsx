@@ -14,6 +14,7 @@ interface Props {
 }
 
 export function InlineConfirmComponent(props: Props) {
+  // TODO(HUMBLE): T — synthesizes confirm_${id} / cancel_${id} action IDs; core should supply confirm_action_id / cancel_action_id (see _private/docs/problems/2026-07-06-desktop-tui-web-domain-shell-violations)
   const onConfirm = () => {
     props.onAction(JSON.stringify({
       ActionPressed: { action_id: `confirm_${props.id}` }
