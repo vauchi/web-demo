@@ -56,7 +56,7 @@ export type Component =
   | { List: { id: string; items: Item[]; searchable: boolean } }
   | { Preview: { name: string; initials: string; avatar_data?: number[] | null; fields: FieldDisplay[]; variants: PreviewVariant[]; selected_variant: string | null; visible_fields?: FieldDisplay[]; a11y?: A11y } }
   | { Dropdown: { id: string; label: string; selected: string | null; options: DropdownOption[]; a11y?: A11y } }
-  | { AvatarPreview: { id: string; image_data?: number[] | null; initials: string; bg_color?: [number, number, number] | null; brightness?: number; editable?: boolean; a11y?: A11y } }
+  | { ImageCircle: { id: string; image_data?: number[] | null; initials: string; bg_color?: [number, number, number] | null; brightness?: number; editable?: boolean; a11y?: A11y } }
   | { Slider: { id: string; label: string; value: number; min: number; max: number; step?: number; min_icon?: string | null; max_icon?: string | null; a11y?: A11y } }
   | { Indicator: { id: string; label: string; kind: IndicatorKind; action_id?: string | null; a11y?: A11y } }
   | { SectionedActionList: { id: string; sections: Section[] } }

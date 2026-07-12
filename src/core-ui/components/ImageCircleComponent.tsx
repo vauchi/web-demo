@@ -15,10 +15,10 @@ interface Props {
   onAction: (actionJson: string) => void;
 }
 
-// Component::AvatarPreview: circular avatar with an initials fallback.
+// Component::ImageCircle: circular avatar with an initials fallback.
 // When editable, tapping emits ActionPressed { action_id: "edit_avatar" }
 // (per core docs).
-export function AvatarPreviewComponent(props: Props) {
+export function ImageCircleComponent(props: Props) {
   // TODO(HUMBLE): W — hardcodes "edit_avatar" action_id; core should emit edit_action_id (see _private/docs/problems/2026-07-06-desktop-tui-web-domain-shell-violations)
   const onEdit = () => {
     props.onAction(JSON.stringify({

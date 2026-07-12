@@ -24,7 +24,7 @@ import { ListComponent } from "./components/ListComponent";
 import { PreviewComponent } from "./components/PreviewComponent";
 import { DropdownComponent } from "./components/DropdownComponent";
 import { SliderComponent } from "./components/SliderComponent";
-import { AvatarPreviewComponent } from "./components/AvatarPreviewComponent";
+import { ImageCircleComponent } from "./components/ImageCircleComponent";
 import { IndicatorComponent } from "./components/IndicatorComponent";
 import { SectionedActionListComponent } from "./components/SectionedActionListComponent";
 
@@ -103,8 +103,8 @@ export function ComponentRenderer(props: Props) {
       <Match when={"Slider" in comp && (comp as any).Slider}>
         {(data) => <SliderComponent {...data()} onAction={props.onAction} />}
       </Match>
-      <Match when={"AvatarPreview" in comp && (comp as any).AvatarPreview}>
-        {(data) => <AvatarPreviewComponent {...data()} onAction={props.onAction} />}
+      <Match when={"ImageCircle" in comp && (comp as any).ImageCircle}>
+        {(data) => <ImageCircleComponent {...data()} onAction={props.onAction} />}
       </Match>
       <Match when={"Indicator" in comp && (comp as any).Indicator}>
         {(data) => <IndicatorComponent {...data()} onAction={props.onAction} />}
