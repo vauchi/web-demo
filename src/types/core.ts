@@ -40,7 +40,7 @@ export type Component =
   | { Text: { id: string; content: string; style: TextStyle } }
   | { TextInput: { id: string; label: string; value: string; placeholder: string | null; max_length: number | null; validation_error: string | null; input_type: InputType; a11y?: A11y } }
   | { ToggleList: { id: string; label: string; items: ToggleItem[]; a11y?: A11y } }
-  | { FieldList: { id: string; fields: FieldDisplay[]; visibility_mode: VisibilityMode; available_groups: string[]; a11y?: A11y } }
+  | { FieldList: { id: string; fields: FieldDisplay[]; visibility_mode: VisibilityMode; available_scopes: string[]; a11y?: A11y } }
   | { CardPreview: { name: string; fields: FieldDisplay[]; group_views: GroupCardView[]; selected_group: string | null; visible_fields?: FieldDisplay[]; a11y?: A11y } }
   | { InfoPanel: { id: string; icon: string | null; title: string; items: InfoItem[]; a11y?: A11y } }
   | { ContactList: { id: string; contacts: ContactItem[]; searchable: boolean } }
@@ -72,7 +72,7 @@ export type ListItemActionKind = "archive" | "unarchive" | "hide" | "unhide" | "
 
 export interface ToggleItem { id: string; label: string; selected: boolean; subtitle: string | null; a11y?: A11y; }
 export interface FieldDisplay { id: string; field_type: string; label: string; value: string; visibility: UiFieldVisibility; a11y?: A11y; }
-export type UiFieldVisibility = "Shown" | "Hidden" | { Groups: string[] };
+export type UiFieldVisibility = "Shown" | "Hidden" | { Scopes: string[] };
 export interface GroupCardView { group_name: string; display_name: string; visible_fields: FieldDisplay[]; }
 export interface InfoItem { icon: string | null; title: string; detail: string; }
 export interface ContactItem { id: string; name: string; subtitle: string | null; avatar_initials: string; status: string | null; searchable_fields: string[]; }
@@ -99,7 +99,7 @@ export type UserAction =
   | { ItemToggled: { component_id: string; item_id: string } }
   | { ActionPressed: { action_id: string } }
   | { FieldVisibilityChanged: { field_id: string; group_id: string | null; visible: boolean } }
-  | { GroupViewSelected: { group_name: string | null } }
+  | { VariantSelected: { variant_id: string | null } }
   | { SearchChanged: { component_id: string; query: string } }
   | { ListItemSelected: { component_id: string; item_id: string } }
   | { ListItemAction: { component_id: string; item_id: string; action_id: string } }

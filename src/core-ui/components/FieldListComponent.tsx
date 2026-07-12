@@ -8,7 +8,7 @@ interface Props {
   id: string;
   fields: FieldDisplay[];
   visibility_mode: VisibilityMode;
-  available_groups: string[];
+  available_scopes: string[];
   a11y?: A11y;
   onAction: (actionJson: string) => void;
 }
@@ -65,8 +65,8 @@ function VisibilityBadge(props: VisibilityBadgeProps) {
         <Match when={props.visibility === "Hidden"}>
           <span class="visibility-icon visibility-hidden" title="Hidden">&#128683;</span>
         </Match>
-        <Match when={typeof props.visibility === "object" && "Groups" in (props.visibility as object)}>
-          <For each={(props.visibility as { Groups: string[] }).Groups}>
+        <Match when={typeof props.visibility === "object" && "Scopes" in (props.visibility as object)}>
+          <For each={(props.visibility as { Scopes: string[] }).Scopes}>
             {(group) => (
               <span
                 class="group-badge"

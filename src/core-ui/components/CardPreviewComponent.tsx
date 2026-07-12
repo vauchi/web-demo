@@ -24,7 +24,7 @@ interface Props {
 export function CardPreviewComponent(props: Props) {
   const selectGroup = (groupName: string | null) => {
     props.onAction(JSON.stringify({
-      GroupViewSelected: { group_name: groupName }
+      VariantSelected: { variant_id: groupName }
     }));
   };
 

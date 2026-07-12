@@ -22,11 +22,10 @@ interface Props {
 }
 
 // Component::Preview: a card preview with selectable per-variant views.
-// Reuses GroupViewSelected (variant_id maps onto group_name on the wire).
 export function PreviewComponent(props: Props) {
   const selectVariant = (variantId: string | null) => {
     props.onAction(JSON.stringify({
-      GroupViewSelected: { group_name: variantId }
+      VariantSelected: { variant_id: variantId }
     }));
   };
 
