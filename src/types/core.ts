@@ -18,6 +18,9 @@ export interface ScreenModel {
   progress: Progress | null;
   // Serde omits this when "Scroll" (default); "Fixed" disables the scroll container.
   layout?: ScreenLayout;
+  // ADR-044 Am2a: core-driven chrome / tabs retire the boolean-family flags.
+  nav_actions?: ScreenAction[];
+  nav_tab_id?: string;
 }
 
 export type ScreenLayout = "Scroll" | "Fixed";
@@ -98,6 +101,9 @@ export type UserAction =
   | { TextChanged: { component_id: string; value: string } }
   | { ItemToggled: { component_id: string; item_id: string } }
   | { ActionPressed: { action_id: string } }
+  | { NavigateToTab: { action_id: string } }
+  | "NavigateBack"
+  | "AppForegrounded"
   | { FieldVisibilityChanged: { field_id: string; group_id: string | null; visible: boolean } }
   | { VariantSelected: { variant_id: string | null } }
   | { SearchChanged: { component_id: string; query: string } }
@@ -106,3 +112,36 @@ export type UserAction =
   | { SettingsToggled: { component_id: string; item_id: string } }
   | { SliderChanged: { component_id: string; value_milli: number } }
   | { UndoPressed: { action_id: string } };
+
+// Core command carried inside ActionResult::Commands or an on_wakeup envelope.
+// ADR-044 Am2a: ScheduleWakeup replaces the frontend's requires_poll loop.
+export type Command =
+  | { ScheduleWakeup: { earliest_secs: number; deadline_secs: number; min_interval_secs: number } };
+
+// Result of handle_action. Keeps the shape loose enough for the WASM bridge
+// JSON while surfacing the variants the web demo acts on.
+export type ActionResult =
+  | "Complete"
+  | "PerformNativeBack"
+  | { error: string }
+  | { UpdateScreen: ScreenModel }
+  | { NavigateTo: ScreenModel }
+  | { ShowAlert: { title: string; message: string } }
+  | { CompleteWith: { destination: PostOnboardingDestination } }
+  | { OnboardingComplete: { destination: PostOnboardingDestination } }
+  | { StartDeviceLink: { role: DeviceLinkRole } }
+  | { OpenContact: { contact_id: string } }
+  | { ContactAction: { contact_id: string; kind: ContactActionKind; undo_action_id: string } }
+  | { ValidationError: { component_id: string; message: string } }
+  | { Commands: Command[] }
+  | { WipeComplete: null };
+
+export type PostOnboardingDestination = "Home" | "Onboarding" | string;
+export type DeviceLinkRole = "Initiator" | "Responder";
+export type ContactActionKind = "archive" | "unarchive" | "hide" | "unhide" | "delete" | "undelete";
+
+// Envelope returned by the WASM on_wakeup function.
+export interface WakeupEnvelope {
+  notifications: unknown[];
+  commands: Command[];
+}

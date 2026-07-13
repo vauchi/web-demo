@@ -2,9 +2,16 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import { createSignal, onCleanup, onMount, Show, For } from "solid-js";
-import { initWasm, createWorkflow, getCurrentScreen, handleAction, destroyWorkflow } from "./wasm/bridge";
+import {
+  initWasm,
+  createWorkflow,
+  getCurrentScreen,
+  handleAction,
+  onWakeup,
+  destroyWorkflow,
+} from "./wasm/bridge";
 import { ScreenRenderer } from "./core-ui/ScreenRenderer";
-import type { ScreenModel } from "./types/core";
+import type { Command, ScreenModel } from "./types/core";
 
 interface Toast {
   title: string;
@@ -27,40 +34,45 @@ export default function App() {
   const [wasmReady, setWasmReady] = createSignal(false);
   let workflowHandle: number | null = null;
   let toastTimer: ReturnType<typeof setTimeout> | undefined;
+  let wakeupTimer: number | undefined;
+
+  const showToast = (t: Toast) => {
+    clearTimeout(toastTimer);
+    setToast(t);
+    toastTimer = setTimeout(() => setToast(null), 4000);
+  };
+
+  const armWakeup = (commands: Command[]) => {
+    const schedule = commands.find((c) => "ScheduleWakeup" in c)?.ScheduleWakeup;
+    if (!schedule) return;
+    // Use earliestSecs as the foreground cadence; min_interval_secs keeps us
+    // from firing more often than core wants.
+    const delayMs = Math.max(schedule.earliest_secs, schedule.min_interval_secs) * 1000;
+    clearTimeout(wakeupTimer);
+    wakeupTimer = window.setTimeout(() => {
+      if (workflowHandle === null) return;
+      const envelope = onWakeup(workflowHandle);
+      setScreen(getCurrentScreen(workflowHandle));
+      armWakeup(envelope.commands);
+    }, delayMs);
+  };
+
+  const bootstrapWakeup = () => {
+    if (workflowHandle === null) return;
+    const envelope = onWakeup(workflowHandle);
+    armWakeup(envelope.commands);
+  };
 
   const startWorkflow = (workflowType: string) => {
+    clearTimeout(wakeupTimer);
     if (workflowHandle !== null) {
       destroyWorkflow(workflowHandle);
     }
     workflowHandle = createWorkflow(workflowType);
     setActiveWorkflow(workflowType);
     setScreen(getCurrentScreen(workflowHandle));
-  };
-
-  onMount(async () => {
-    try {
-      await initWasm();
-      setWasmReady(true);
-      startWorkflow("onboarding");
-    } catch (e) {
-      setError(`Failed to initialize: ${e}`);
-    } finally {
-      setLoading(false);
-    }
-  });
-
-  onCleanup(() => {
-    if (workflowHandle !== null) {
-      destroyWorkflow(workflowHandle);
-      workflowHandle = null;
-    }
-    clearTimeout(toastTimer);
-  });
-
-  const showToast = (t: Toast) => {
-    clearTimeout(toastTimer);
-    setToast(t);
-    toastTimer = setTimeout(() => setToast(null), 4000);
+    // ADR-044 Am2a: the on_wakeup loop replaces the frontend requires_poll loop.
+    bootstrapWakeup();
   };
 
   const onAction = (actionJson: string) => {
@@ -82,12 +94,56 @@ export default function App() {
       if (result.WipeComplete || result === "WipeComplete") {
         showToast({ title: "Wiped", message: "All data has been erased." });
       }
+      // ADR-044 Am2a: core owns the back decision. When it has nothing to pop
+      // it tells us to perform the native back default; in a browser tab that
+      // is a no-op because the OS back gesture was already forwarded to core.
+      if (result === "PerformNativeBack") {
+        return;
+      }
     } catch {
       // Non-JSON response — ignore
     }
     const updated = getCurrentScreen(workflowHandle);
     setScreen(updated);
   };
+
+  const handleKeyDown = (event: KeyboardEvent) => {
+    if (event.key === "Escape") {
+      event.preventDefault();
+      onAction(JSON.stringify("NavigateBack"));
+    }
+  };
+
+  const handlePopState = () => {
+    // ADR-044 Am2a: forward browser back unconditionally as UserAction::NavigateBack.
+    onAction(JSON.stringify("NavigateBack"));
+  };
+
+  onMount(async () => {
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("popstate", handlePopState);
+
+    try {
+      await initWasm();
+      setWasmReady(true);
+      startWorkflow("onboarding");
+    } catch (e) {
+      setError(`Failed to initialize: ${e}`);
+    } finally {
+      setLoading(false);
+    }
+  });
+
+  onCleanup(() => {
+    window.removeEventListener("keydown", handleKeyDown);
+    window.removeEventListener("popstate", handlePopState);
+    if (workflowHandle !== null) {
+      destroyWorkflow(workflowHandle);
+      workflowHandle = null;
+    }
+    clearTimeout(toastTimer);
+    clearTimeout(wakeupTimer);
+  });
 
   return (
     <div class="app">

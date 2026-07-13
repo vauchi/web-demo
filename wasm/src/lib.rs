@@ -15,6 +15,7 @@ static WORKFLOWS: Mutex<Vec<Option<Box<dyn WorkflowEngineAny + Send>>>> = Mutex:
 trait WorkflowEngineAny {
     fn current_screen_json(&self) -> String;
     fn handle_action_json(&mut self, json: &str) -> String;
+    fn on_wakeup_json(&mut self) -> String;
 }
 
 impl<T: WorkflowEngine> WorkflowEngineAny for T {
@@ -29,6 +30,20 @@ impl<T: WorkflowEngine> WorkflowEngineAny for T {
             }
             Err(e) => format!(r#"{{"error":"{}"}}"#, e),
         }
+    }
+    fn on_wakeup_json(&mut self) -> String {
+        // Mirrors PlatformAppEngine::on_wakeup: run the same advances as
+        // poll_notifications and emit the next ScheduleWakeup so the shell
+        // can re-arm (ADR-044 Am2a Option C).
+        let notifications = self.poll_notifications();
+        let commands = serde_json::json!([{
+            "ScheduleWakeup": {
+                "earliest_secs": 30,
+                "deadline_secs": 90,
+                "min_interval_secs": 30,
+            }
+        }]);
+        serde_json::json!({ "notifications": notifications, "commands": commands }).to_string()
     }
 }
 
@@ -62,6 +77,15 @@ pub fn workflow_handle_action(handle: i32, action_json: &str) -> String {
     match workflows.get_mut(handle as usize) {
         Some(Some(engine)) => engine.handle_action_json(action_json),
         _ => r#"{"error":"invalid handle"}"#.to_string(),
+    }
+}
+
+#[wasm_bindgen]
+pub fn workflow_on_wakeup(handle: i32) -> String {
+    let mut workflows = WORKFLOWS.lock().unwrap();
+    match workflows.get_mut(handle as usize) {
+        Some(Some(engine)) => engine.on_wakeup_json(),
+        _ => r#"{"notifications":[],"commands":[]}"#.to_string(),
     }
 }
 

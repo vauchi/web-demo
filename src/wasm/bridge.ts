@@ -5,7 +5,7 @@
 ///
 /// Replaces Tauri IPC calls from the desktop app with direct WASM function calls.
 
-import type { ScreenModel } from "../types/core";
+import type { ScreenModel, WakeupEnvelope } from "../types/core";
 
 // These will be populated after WASM init
 let wasmModule: any = null;
@@ -50,6 +50,15 @@ export function getCurrentScreen(handle: number): ScreenModel {
 export function handleAction(handle: number, actionJson: string): string {
   if (!wasmModule) return '{"error":"wasm not loaded"}';
   return wasmModule.workflow_handle_action(handle, actionJson);
+}
+
+export function onWakeup(handle: number): WakeupEnvelope {
+  if (!wasmModule) {
+    // Placeholder for development without WASM.
+    return { notifications: [], commands: [] };
+  }
+  const json = wasmModule.workflow_on_wakeup(handle);
+  return JSON.parse(json);
 }
 
 export function destroyWorkflow(handle: number): void {

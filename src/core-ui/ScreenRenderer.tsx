@@ -15,15 +15,53 @@ export function ScreenRenderer(props: Props) {
     props.onAction(JSON.stringify({ ActionPressed: { action_id: actionId } }));
   };
 
+  const sendNavigateBack = () => {
+    props.onAction(JSON.stringify("NavigateBack"));
+  };
+
   // Default layout is "Scroll" (serde omits the field). When "Fixed", the
   // screen container must not scroll.
   const isFixed = () => props.screen.layout === "Fixed";
 
+  const navActions = () => props.screen.nav_actions ?? [];
+  const backAction = () => navActions().find((a) => a.id === "go_back");
+  const chromeActions = () => navActions().filter((a) => a.id !== "go_back");
+
   return (
     <div
       class={`screen${isFixed() ? " screen-fixed" : ""}`}
+      data-nav-tab={props.screen.nav_tab_id}
       style={isFixed() ? { overflow: "hidden" } : undefined}
     >
+      <Show when={navActions().length > 0}>
+        <nav class="nav-chrome" aria-label="Screen chrome">
+          <Show when={backAction()}>
+            {(a) => (
+              <button
+                class="nav-back"
+                disabled={!a().enabled}
+                onClick={sendNavigateBack}
+              >
+                {a().label}
+              </button>
+            )}
+          </Show>
+          <Show when={props.screen.nav_tab_id}>
+            {(tab) => <span class="nav-tab">{tab()}</span>}
+          </Show>
+          <For each={chromeActions()}>
+            {(action) => (
+              <button
+                class={`nav-chrome-action nav-chrome-action-${action.style.toLowerCase()}`}
+                disabled={!action.enabled}
+                onClick={() => pressAction(action.id)}
+              >
+                {action.label}
+              </button>
+            )}
+          </For>
+        </nav>
+      </Show>
       <h2>{props.screen.title}</h2>
       <Show when={props.screen.subtitle}>
         <p class="subtitle">{props.screen.subtitle}</p>
