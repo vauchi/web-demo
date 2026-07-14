@@ -41,6 +41,51 @@ describe("Core types", () => {
     expect(JSON.stringify(action)).toContain("ActionPressed");
   });
 
+  it("requires core-owned copy and action ids for generic editing", () => {
+    const component: Component = {
+      EditableText: {
+        id: "visual-only-id",
+        label: "Note",
+        value: "Hello",
+        edit_text: "Change note",
+        save_text: "Keep it",
+        cancel_text: "Leave it",
+        edit_action_id: "opaque/edit#1",
+        save_action_id: "opaque/save#2",
+        cancel_action_id: "opaque/cancel#3",
+        editing: false,
+        validation_error: null,
+      },
+    };
+    expect(component.EditableText.edit_action_id).toBe("opaque/edit#1");
+  });
+
+  it("preserves the core-owned ImageCircle edit action id", () => {
+    const component: Component = {
+      ImageCircle: {
+        id: "visual-only-id",
+        initials: "AG",
+        editable: true,
+        edit_action_id: "opaque/image-edit#4",
+      },
+    };
+    expect(component.ImageCircle.edit_action_id).toBe("opaque/image-edit#4");
+  });
+
+  it("requires the core-localized StatusIndicator label", () => {
+    const component: Component = {
+      StatusIndicator: {
+        id: "sync-status",
+        icon: null,
+        title: "Synchronisation",
+        detail: null,
+        status: "Success",
+        status_label: "Erfolg",
+      },
+    };
+    expect(component.StatusIndicator.status_label).toBe("Erfolg");
+  });
+
   it("can construct a NavigateBack user action", () => {
     const action: UserAction = "NavigateBack";
     expect(action).toBe("NavigateBack");

@@ -15,7 +15,7 @@ interface Props {
 
 export function QrCodeComponent(props: Props) {
   const [dataUrl, setDataUrl] = createSignal<string | null>(null);
-  const [error, setError] = createSignal<string | null>(null);
+  const [error, setError] = createSignal(false);
 
   createEffect(() => {
     if (props.mode === "Display" && props.data) {
@@ -27,10 +27,10 @@ export function QrCodeComponent(props: Props) {
       })
         .then((url: string) => {
           setDataUrl(url);
-          setError(null);
+          setError(false);
         })
-        .catch((err: Error) => {
-          setError(`QR generation failed: ${err.message}`);
+        .catch(() => {
+          setError(true);
           setDataUrl(null);
         });
     }
@@ -39,7 +39,7 @@ export function QrCodeComponent(props: Props) {
   return (
     <div
       class="component qr-display"
-      aria-label={props.a11y?.label}
+      aria-label={props.a11y?.label ?? props.label ?? undefined}
       title={props.a11y?.hint}
     >
       <Show when={props.label}>
@@ -55,26 +55,36 @@ export function QrCodeComponent(props: Props) {
                 fallback={
                   <div class="qr-placeholder">
                     <div class="qr-placeholder-content">
-                      <div class="spinner" />
-                      <span>Generating QR...</span>
+                      <div class="spinner" aria-hidden="true" />
                     </div>
                   </div>
                 }
               >
-                <div class="qr-error">{error()}</div>
+                <div
+                  class="qr-error"
+                  role="alert"
+                  aria-label={props.a11y?.label ?? props.label ?? undefined}
+                >
+                  &#9888;
+                </div>
               </Show>
             }
           >
             {(url) => (
-              <img class="qr-image" src={url()} alt="QR Code" width={200} height={200} />
+              <img
+                class="qr-image"
+                src={url()}
+                alt={props.a11y?.label ?? props.label ?? ""}
+                width={200}
+                height={200}
+              />
             )}
           </Show>
         </Match>
         <Match when={props.mode === "Scan"}>
           <div class="qr-placeholder qr-scan">
             <div class="qr-placeholder-content">
-              <span class="qr-icon">&#128247;</span>
-              <span>Point camera at QR code</span>
+              <span class="qr-icon" aria-hidden="true">&#128247;</span>
             </div>
           </div>
         </Match>

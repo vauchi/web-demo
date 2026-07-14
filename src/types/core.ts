@@ -43,23 +43,21 @@ export type Component =
   | { Text: { id: string; content: string; style: TextStyle } }
   | { TextInput: { id: string; label: string; value: string; placeholder: string | null; max_length: number | null; validation_error: string | null; input_type: InputType; a11y?: A11y } }
   | { ToggleList: { id: string; label: string; items: ToggleItem[]; a11y?: A11y } }
-  | { FieldList: { id: string; fields: FieldDisplay[]; visibility_mode: VisibilityMode; available_scopes: string[]; a11y?: A11y } }
-  | { CardPreview: { name: string; fields: FieldDisplay[]; group_views: GroupCardView[]; selected_group: string | null; visible_fields?: FieldDisplay[]; a11y?: A11y } }
+  | { FieldList: { id: string; title: string; fields: FieldDisplay[]; visibility_mode: VisibilityMode; available_scopes: string[]; a11y?: A11y } }
   | { InfoPanel: { id: string; icon: string | null; title: string; items: InfoItem[]; a11y?: A11y } }
-  | { ContactList: { id: string; contacts: ContactItem[]; searchable: boolean } }
   | { SettingsGroup: { id: string; label: string; items: SettingsItem[] } }
   | { ActionList: { id: string; items: ActionListItem[] } }
-  | { StatusIndicator: { id: string; icon: string | null; title: string; detail: string | null; status: Status; a11y?: A11y } }
+  | { StatusIndicator: { id: string; icon: string | null; title: string; detail: string | null; status: Status; status_label: string; a11y?: A11y } }
   | { PinInput: { id: string; label: string; length: number; filled: number; masked: boolean; validation_error: string | null; a11y?: A11y } }
   | { QrCode: { id: string; data: string; mode: QrMode; label: string | null; a11y?: A11y } }
-  | { InlineConfirm: { id: string; warning: string; confirm_text: string; cancel_text: string; destructive: boolean; a11y?: A11y } }
-  | { EditableText: { id: string; label: string; value: string; editing: boolean; validation_error: string | null; a11y?: A11y } }
+  | { InlineConfirm: { id: string; warning: string; confirm_text: string; cancel_text: string; confirm_action_id: string; cancel_action_id: string; destructive: boolean; a11y?: A11y } }
+  | { EditableText: { id: string; label: string; value: string; edit_text: string; save_text: string; cancel_text: string; edit_action_id: string; save_action_id: string; cancel_action_id: string; editing: boolean; validation_error: string | null; a11y?: A11y } }
   | { Banner: { text: string; action_label: string; action_id: string; a11y?: A11y } }
   | { Row: { id: string; items: Component[] } }
   | { List: { id: string; items: Item[]; searchable: boolean } }
   | { Preview: { name: string; initials: string; avatar_data?: number[] | null; fields: FieldDisplay[]; variants: PreviewVariant[]; selected_variant: string | null; visible_fields?: FieldDisplay[]; a11y?: A11y } }
   | { Dropdown: { id: string; label: string; selected: string | null; options: DropdownOption[]; a11y?: A11y } }
-  | { ImageCircle: { id: string; image_data?: number[] | null; initials: string; bg_color?: [number, number, number] | null; brightness?: number; editable?: boolean; a11y?: A11y } }
+  | { ImageCircle: { id: string; image_data?: number[] | null; initials: string; bg_color?: [number, number, number] | null; brightness?: number; editable?: boolean; edit_action_id?: string | null; a11y?: A11y } }
   | { Slider: { id: string; label: string; value: number; min: number; max: number; step?: number; min_icon?: string | null; max_icon?: string | null; a11y?: A11y } }
   | { Indicator: { id: string; label: string; kind: IndicatorKind; action_id?: string | null; a11y?: A11y } }
   | { SectionedActionList: { id: string; sections: Section[] } }
@@ -76,9 +74,7 @@ export type ListItemActionKind = "archive" | "unarchive" | "hide" | "unhide" | "
 export interface ToggleItem { id: string; label: string; selected: boolean; subtitle: string | null; a11y?: A11y; }
 export interface FieldDisplay { id: string; field_type: string; label: string; value: string; visibility: UiFieldVisibility; a11y?: A11y; }
 export type UiFieldVisibility = "Shown" | "Hidden" | { Scopes: string[] };
-export interface GroupCardView { group_name: string; display_name: string; visible_fields: FieldDisplay[]; }
 export interface InfoItem { icon: string | null; title: string; detail: string; }
-export interface ContactItem { id: string; name: string; subtitle: string | null; avatar_initials: string; status: string | null; searchable_fields: string[]; }
 export interface SettingsItem { id: string; label: string; kind: SettingsItemKind; }
 export type SettingsItemKind = { Toggle: { enabled: boolean } } | { Value: { value: string } } | { Link: { detail: string | null } } | { Destructive: { label: string } };
 export interface ActionListItem { id: string; label: string; icon: string | null; detail: string | null; }

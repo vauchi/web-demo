@@ -14,8 +14,10 @@ import { ScreenRenderer } from "./core-ui/ScreenRenderer";
 import type { Command, ScreenModel } from "./types/core";
 
 interface Toast {
-  title: string;
+  title?: string;
   message: string;
+  actionId?: string;
+  actionLabel?: string;
 }
 
 // TODO(HUMBLE): W — hardcodes demo workflow catalogue; core should drive workflow list (see _private/docs/problems/2026-07-06-desktop-tui-web-domain-shell-violations)
@@ -86,6 +88,13 @@ export default function App() {
       }
       if (result.ShowAlert) {
         showToast({ title: result.ShowAlert.title, message: result.ShowAlert.message });
+      }
+      if (result.ShowToast) {
+        showToast({
+          message: result.ShowToast.message,
+          actionId: result.ShowToast.undo_action_id,
+          actionLabel: result.ShowToast.undo_label,
+        });
       }
       // TODO(HUMBLE): W — frontend synthesizes toast messages for Complete / WipeComplete; core should emit Toast result (see _private/docs/problems/2026-07-06-desktop-tui-web-domain-shell-violations)
       if (result.Complete || result === "Complete") {
@@ -190,8 +199,22 @@ export default function App() {
         <Show when={toast()}>
           {(t) => (
             <div class="toast">
-              <strong>{t().title}</strong>
+              <Show when={t().title}>{(title) => <strong>{title()}</strong>}</Show>
               <span>{t().message}</span>
+              <Show when={t().actionId && t().actionLabel}>
+                <button
+                  type="button"
+                  class="toast-action"
+                  onClick={() => {
+                    const actionId = t().actionId;
+                    if (!actionId) return;
+                    onAction(JSON.stringify({ UndoPressed: { action_id: actionId } }));
+                    setToast(null);
+                  }}
+                >
+                  {t().actionLabel}
+                </button>
+              </Show>
             </div>
           )}
         </Show>

@@ -8,22 +8,23 @@ interface Props {
   warning: string;
   confirm_text: string;
   cancel_text: string;
+  confirm_action_id: string;
+  cancel_action_id: string;
   destructive: boolean;
   a11y?: A11y;
   onAction: (actionJson: string) => void;
 }
 
 export function InlineConfirmComponent(props: Props) {
-  // TODO(HUMBLE): T — synthesizes confirm_${id} / cancel_${id} action IDs; core should supply confirm_action_id / cancel_action_id (see _private/docs/problems/2026-07-06-desktop-tui-web-domain-shell-violations)
   const onConfirm = () => {
     props.onAction(JSON.stringify({
-      ActionPressed: { action_id: `confirm_${props.id}` }
+      ActionPressed: { action_id: props.confirm_action_id }
     }));
   };
 
   const onCancel = () => {
     props.onAction(JSON.stringify({
-      ActionPressed: { action_id: `cancel_${props.id}` }
+      ActionPressed: { action_id: props.cancel_action_id }
     }));
   };
 

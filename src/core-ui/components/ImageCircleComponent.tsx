@@ -11,18 +11,18 @@ interface Props {
   bg_color?: [number, number, number] | null;
   brightness?: number;
   editable?: boolean;
+  edit_action_id?: string | null;
   a11y?: A11y;
   onAction: (actionJson: string) => void;
 }
 
-// Component::ImageCircle: circular avatar with an initials fallback.
-// When editable, tapping emits ActionPressed { action_id: "edit_avatar" }
-// (per core docs).
+// Component::ImageCircle: circular image with an initials fallback.
 export function ImageCircleComponent(props: Props) {
-  // TODO(HUMBLE): W — hardcodes "edit_avatar" action_id; core should emit edit_action_id (see _private/docs/problems/2026-07-06-desktop-tui-web-domain-shell-violations)
   const onEdit = () => {
+    const actionId = props.edit_action_id;
+    if (!actionId) return;
     props.onAction(JSON.stringify({
-      ActionPressed: { action_id: "edit_avatar" }
+      ActionPressed: { action_id: actionId }
     }));
   };
 
@@ -49,16 +49,16 @@ export function ImageCircleComponent(props: Props) {
       when={imageSrc()}
       fallback={<span class="avatar-initials">{props.initials}</span>}
     >
-      {(src) => <img class="avatar-image" src={src()} alt={props.a11y?.label ?? "Avatar"} />}
+      {(src) => <img class="avatar-image" src={src()} alt={props.a11y?.label ?? props.initials} />}
     </Show>
   );
 
   return (
     <div class="component avatar-preview">
       <Show
-        when={props.editable}
+        when={props.editable && props.edit_action_id}
         fallback={
-          <div class="avatar-circle" style={bgStyle()} aria-label={props.a11y?.label ?? "Avatar"}>
+          <div class="avatar-circle" style={bgStyle()} aria-label={props.a11y?.label ?? props.initials}>
             {inner}
           </div>
         }
@@ -66,7 +66,7 @@ export function ImageCircleComponent(props: Props) {
         <button
           class="avatar-circle avatar-editable"
           style={bgStyle()}
-          aria-label={props.a11y?.label ?? "Edit avatar"}
+          aria-label={props.a11y?.label ?? props.initials}
           onClick={onEdit}
         >
           {inner}

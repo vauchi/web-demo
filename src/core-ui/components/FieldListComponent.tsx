@@ -6,6 +6,7 @@ import type { A11y, FieldDisplay, VisibilityMode, UiFieldVisibility } from "../.
 
 interface Props {
   id: string;
+  title: string;
   fields: FieldDisplay[];
   visibility_mode: VisibilityMode;
   available_scopes: string[];
@@ -86,9 +87,8 @@ function VisibilityBadge(props: VisibilityBadgeProps) {
 }
 
 export function FieldListComponent(props: Props) {
-  // TODO(HUMBLE): W — default aria-label "Contact fields"; core should supply a11y.label (see _private/docs/problems/2026-07-06-desktop-tui-web-domain-shell-violations)
   return (
-    <div class="component field-list" aria-label={props.a11y?.label ?? "Contact fields"} title={props.a11y?.hint}>
+    <div class="component field-list" aria-label={props.a11y?.label ?? props.title} title={props.a11y?.hint}>
       <For each={props.fields}>
         {(field) => (
           <div class="field-row" aria-label={field.a11y?.label ?? `${field.label}: ${field.value}`} title={field.a11y?.hint}>

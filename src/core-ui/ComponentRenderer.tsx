@@ -7,9 +7,7 @@ import { TextComponent } from "./components/TextComponent";
 import { TextInputComponent } from "./components/TextInputComponent";
 import { ToggleListComponent } from "./components/ToggleListComponent";
 import { FieldListComponent } from "./components/FieldListComponent";
-import { CardPreviewComponent } from "./components/CardPreviewComponent";
 import { InfoPanelComponent } from "./components/InfoPanelComponent";
-import { ContactListComponent } from "./components/ContactListComponent";
 import { SettingsGroupComponent } from "./components/SettingsGroupComponent";
 import { ActionListComponent } from "./components/ActionListComponent";
 import { StatusIndicatorComponent } from "./components/StatusIndicatorComponent";
@@ -55,14 +53,8 @@ export function ComponentRenderer(props: Props) {
       <Match when={"FieldList" in comp && (comp as any).FieldList}>
         {(data) => <FieldListComponent {...data()} onAction={props.onAction} />}
       </Match>
-      <Match when={"CardPreview" in comp && (comp as any).CardPreview}>
-        {(data) => <CardPreviewComponent {...data()} onAction={props.onAction} />}
-      </Match>
       <Match when={"InfoPanel" in comp && (comp as any).InfoPanel}>
         {(data) => <InfoPanelComponent {...data()} />}
-      </Match>
-      <Match when={"ContactList" in comp && (comp as any).ContactList}>
-        {(data) => <ContactListComponent {...data()} onAction={props.onAction} />}
       </Match>
       <Match when={"SettingsGroup" in comp && (comp as any).SettingsGroup}>
         {(data) => <SettingsGroupComponent {...data()} onAction={props.onAction} />}

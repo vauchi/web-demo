@@ -10,6 +10,7 @@ interface Props {
   title: string;
   detail: string | null;
   status: Status;
+  status_label: string;
   a11y?: A11y;
 }
 
@@ -29,7 +30,7 @@ export function StatusIndicatorComponent(props: Props) {
           <span class="status-detail">{props.detail}</span>
         </Show>
       </div>
-      <span class={`status-badge status-${props.status}`}>{props.status}</span>
+      <span class={`status-badge status-${props.status}`}>{props.status_label}</span>
     </div>
   );
 }
