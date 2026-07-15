@@ -24,7 +24,7 @@ include:
   - template: Security/SAST.gitlab-ci.yml
   - template: Security/Secret-Detection.gitlab-ci.yml
   - project: 'vauchi/scripts'
-    ref: ci-templates-v2026.07.2
+    ref: ci-templates-v2026.07.5
     file:
       - '/ci-templates/design-drift.yml'
       - '/ci-templates/removed-symbols.yml'
@@ -36,7 +36,7 @@ include:
       - '/ci-templates/security-gates.yml'
 
 variables:
-  VAUCHI_SCRIPTS_REF: "ci-templates-v2026.07.2"
+  VAUCHI_SCRIPTS_REF: "ci-templates-v2026.07.5"
   SAST_EXCLUDED_PATHS: "dist/, node_modules/, wasm/pkg/, wasm/target/"
   SECRET_DETECTION_EXCLUDED_PATHS: "dist/, node_modules/, wasm/pkg/, wasm/target/"
   SAST_ANALYZER_IMAGE_TAG: "5"
@@ -97,7 +97,7 @@ coverage:unit:
   variables:
     FETCH_SCRIPT_PATH: "scripts/ci/push-coverage.sh"
     FETCH_SCRIPT_OUTPUT: "push-coverage.sh"
-    FETCH_SCRIPT_SHA256: "e90b1b5b5afd68ae53b85cc0cf9255062c7ab623fc104c15e9f3d8367846ff1e"
+    FETCH_SCRIPT_SHA256: "58321b90bddbf7c28939181de38ffd9f574a416cac12c29c726b470acbbdcfef"
   script:
     - npm ci
     - npx vitest run --coverage --coverage.reporter=cobertura
@@ -123,7 +123,7 @@ pages:
   variables:
     FETCH_SCRIPT_PATH: "scripts/ci/generate-badges.sh"
     FETCH_SCRIPT_OUTPUT: "generate-badges.sh"
-    FETCH_SCRIPT_SHA256: "063102cf4d70717c267e83e5d81b476db67d73c88760528c38fb03727e1e9720"
+    FETCH_SCRIPT_SHA256: "e1fc40dffa03712b784144d4324b7f66064c711a79a69a5d658fea89fa5de27c"
   script:
     - mv dist public
     - ./generate-badges.sh public/badges
