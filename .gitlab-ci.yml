@@ -139,11 +139,14 @@ pages:
 # ============================================================
 
 semgrep-sast:
-  allow_failure: false
+  stage: security
   tags: !reference [.security-gate-sast-tags, tags]
-  interruptible: !reference [.security-gate-sast-flags, interruptible]
+  interruptible: false
+  allow_failure: false
   retry: !reference [.security-gate-sast-retry, retry]
   rules:
+    - if: $CI_PIPELINE_SOURCE == "pipeline" || $CI_PIPELINE_SOURCE == "trigger" || $CI_PIPELINE_SOURCE == "api"
+      when: never
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       changes:
         compare_to: refs/heads/$CI_DEFAULT_BRANCH
@@ -154,13 +157,6 @@ semgrep-sast:
           - ".gitlab-ci.yml"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - if: $CI_PIPELINE_SOURCE == "schedule"
-
-secret_detection:
-  allow_failure: false
-  tags: [docker]
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
 # Shared Playwright job base — image, runner tag, and the 2-step
 # dependency install that all three Playwright jobs need. Extracted
@@ -319,8 +315,8 @@ lint:humble:
 secret_detection:
   stage: security
   tags: !reference [.security-gate-secret-tags, tags]
-  interruptible: !reference [.security-gate-secret-flags, interruptible]
-  allow_failure: !reference [.security-gate-secret-flags, allow_failure]
+  interruptible: false
+  allow_failure: false
   rules: !reference [.security-gate-secret-rules, rules]
 
 github-mirror:
