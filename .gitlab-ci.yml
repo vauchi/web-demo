@@ -31,6 +31,9 @@ include:
       - '/ci-templates/github-mirror.yml'
       - '/ci-templates/vrt-upload.yml'
       - '/ci-templates/verified-fetch.yml'
+      - '/ci-templates/tool-install.yml'
+      - '/ci-templates/cross-cutting-lint.yml'
+      - '/ci-templates/security-gates.yml'
 
 variables:
   VAUCHI_SCRIPTS_REF: "ci-templates-v2026.07.2"
@@ -298,35 +301,7 @@ check:removed-symbols:
 # into the view layer (ADR-043 Amendment 6). Snapshot counts are
 # tracked in vauchi/scripts; the ratchet may only drop.
 lint:humble:
-  stage: lint
-  image: ${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/python:3.11-slim
-  tags: [docker]
-  needs: []
-  variables:
-    HUMBLE_PY_SHA256: "85583235803f081a5a2cfb01a49b5434dd2c141008e0f53cd6f356f3e9d0cc62"
-    HUMBLE_RULES_SHA256: "61914156cb2630494bfc860981d7e7189af2fee7b7deb3bd207392ff8b518ca5"
-    HUMBLE_BASELINE_SHA256: "b54146a225a0269b2026ccbce5fb8257010e341c4de97693ceae88487cc656dd"
-  before_script:
-    - apt-get update && apt-get install -y --no-install-recommends curl ca-certificates coreutils
-    - mkdir -p .ratchet-scripts
-    - |
-      set -euo pipefail
-      BASE_URL="${CI_API_V4_URL}/projects/vauchi%2Fscripts/repository/files"
-      curl -sf -H "PRIVATE-TOKEN: ${CI_JOB_TOKEN}" \
-        "${BASE_URL}/scripts%2Fhumble_check.py/raw?ref=${VAUCHI_SCRIPTS_REF}" \
-        -o .ratchet-scripts/humble_check.py
-      curl -sf -H "PRIVATE-TOKEN: ${CI_JOB_TOKEN}" \
-        "${BASE_URL}/scripts%2Fhumble_check_rules.json/raw?ref=${VAUCHI_SCRIPTS_REF}" \
-        -o .ratchet-scripts/humble_check_rules.json
-      curl -sf -H "PRIVATE-TOKEN: ${CI_JOB_TOKEN}" \
-        "${BASE_URL}/scripts%2Fhumble_check.baseline.json/raw?ref=${VAUCHI_SCRIPTS_REF}" \
-        -o .ratchet-scripts/humble_check.baseline.json
-      printf '%s  %s\n' "${HUMBLE_PY_SHA256}" .ratchet-scripts/humble_check.py | sha256sum -c -
-      printf '%s  %s\n' "${HUMBLE_RULES_SHA256}" .ratchet-scripts/humble_check_rules.json | sha256sum -c -
-      printf '%s  %s\n' "${HUMBLE_BASELINE_SHA256}" .ratchet-scripts/humble_check.baseline.json | sha256sum -c -
-      chmod +x .ratchet-scripts/humble_check.py
-  script:
-    - python3 .ratchet-scripts/humble_check.py --repo "${CI_PROJECT_NAME}" --repo-path "${CI_PROJECT_DIR}" --config .ratchet-scripts/humble_check_rules.json --check .ratchet-scripts/humble_check.baseline.json
+  extends: .cross-cutting-lint
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
       changes:
@@ -338,6 +313,14 @@ lint:humble:
           - "src/**/*.jsx"
           - ".gitlab-ci.yml"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
+semgrep-sast:
+  extends: .security-gate-sast
+  stage: security
+
+secret_detection:
+  extends: .security-gate-secret
+  stage: security
 
 github-mirror:
   extends: .github-mirror
