@@ -7,6 +7,7 @@
 //! via wasm-bindgen. Uses pure RustCrypto stack (no C FFI).
 
 use std::sync::Mutex;
+use vauchi_app::i18n::Locale;
 use vauchi_app::ui::*;
 use wasm_bindgen::prelude::*;
 
@@ -51,7 +52,7 @@ impl<T: WorkflowEngine> WorkflowEngineAny for T {
 pub fn workflow_create(workflow_type: &str) -> i32 {
     let engine: Box<dyn WorkflowEngineAny + Send> = match workflow_type {
         "onboarding" => Box::new(OnboardingEngine::new()),
-        "emergency_shred" => Box::new(EmergencyShredEngine::new()),
+        "emergency_shred" => Box::new(EmergencyShredEngine::new(Locale::English)),
         "lock_screen" => Box::new(LockScreenEngine::new(3)),
         _ => return -1,
     };
