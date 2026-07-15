@@ -30,6 +30,7 @@ include:
       - '/ci-templates/removed-symbols.yml'
       - '/ci-templates/github-mirror.yml'
       - '/ci-templates/vrt-upload.yml'
+      - '/ci-templates/verified-fetch.yml'
 
 variables:
   VAUCHI_SCRIPTS_REF: "ci-templates-v2026.07.2"
@@ -44,6 +45,20 @@ stages:
   - test
   - security
   - deploy
+
+# Dependency audit gate — blocks MRs on moderate+ npm advisories.
+audit:deps:
+  stage: lint
+  image: ${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/node:20-slim
+  tags: [docker]
+  needs: []
+  script:
+    - npm ci
+    - npm audit --audit-level=moderate
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "schedule"
 
 build:wasm:
   stage: build-wasm
@@ -74,18 +89,17 @@ test:unit:
 
 # Coverage: vitest with v8 provider (main merges only)
 coverage:unit:
+  extends: .verified-fetch-script
   stage: test
+  variables:
+    FETCH_SCRIPT_PATH: "scripts/ci/push-coverage.sh"
+    FETCH_SCRIPT_OUTPUT: "push-coverage.sh"
+    FETCH_SCRIPT_SHA256: "e90b1b5b5afd68ae53b85cc0cf9255062c7ab623fc104c15e9f3d8367846ff1e"
   script:
     - npm ci
     - npx vitest run --coverage --coverage.reporter=cobertura
       --coverage.reportsDirectory=coverage
-    - |
-      # Push metrics to Grafana
-      curl --silent --fail \
-        "${CI_API_V4_URL}/projects/77957857/repository/files/scripts%2Fci%2Fpush-coverage.sh/raw?ref=${VAUCHI_SCRIPTS_REF}" \
-        -o push-coverage.sh
-      chmod +x push-coverage.sh
-      ./push-coverage.sh coverage/cobertura-coverage.xml "web-demo" || true
+    - ./push-coverage.sh coverage/cobertura-coverage.xml "web-demo" || true
   coverage: '/All files[^|]*\|[^|]*\s+([\d.]+)/'
   artifacts:
     when: always
@@ -101,14 +115,14 @@ coverage:unit:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
 pages:
+  extends: .verified-fetch-script
   stage: deploy
+  variables:
+    FETCH_SCRIPT_PATH: "scripts/ci/generate-badges.sh"
+    FETCH_SCRIPT_OUTPUT: "generate-badges.sh"
+    FETCH_SCRIPT_SHA256: "063102cf4d70717c267e83e5d81b476db67d73c88760528c38fb03727e1e9720"
   script:
     - mv dist public
-    - |
-      curl --silent --fail \
-        "${CI_API_V4_URL}/projects/vauchi%2Fscripts/repository/files/scripts%2Fci%2Fgenerate-badges.sh/raw?ref=${VAUCHI_SCRIPTS_REF}" \
-        -o generate-badges.sh
-      chmod +x generate-badges.sh
     - ./generate-badges.sh public/badges
   artifacts:
     paths:
@@ -288,19 +302,29 @@ lint:humble:
   image: ${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/python:3.11-slim
   tags: [docker]
   needs: []
+  variables:
+    HUMBLE_PY_SHA256: "85583235803f081a5a2cfb01a49b5434dd2c141008e0f53cd6f356f3e9d0cc62"
+    HUMBLE_RULES_SHA256: "61914156cb2630494bfc860981d7e7189af2fee7b7deb3bd207392ff8b518ca5"
+    HUMBLE_BASELINE_SHA256: "b54146a225a0269b2026ccbce5fb8257010e341c4de97693ceae88487cc656dd"
   before_script:
-    - apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
+    - apt-get update && apt-get install -y --no-install-recommends curl ca-certificates coreutils
     - mkdir -p .ratchet-scripts
     - |
-      curl --silent --fail \
-        "${CI_API_V4_URL}/projects/vauchi%2Fscripts/repository/files/scripts%2Fhumble_check.py/raw?ref=${VAUCHI_SCRIPTS_REF}" \
+      set -euo pipefail
+      BASE_URL="${CI_API_V4_URL}/projects/vauchi%2Fscripts/repository/files"
+      curl -sf -H "PRIVATE-TOKEN: ${CI_JOB_TOKEN}" \
+        "${BASE_URL}/scripts%2Fhumble_check.py/raw?ref=${VAUCHI_SCRIPTS_REF}" \
         -o .ratchet-scripts/humble_check.py
-      curl --silent --fail \
-        "${CI_API_V4_URL}/projects/vauchi%2Fscripts/repository/files/scripts%2Fhumble_check_rules.json/raw?ref=${VAUCHI_SCRIPTS_REF}" \
+      curl -sf -H "PRIVATE-TOKEN: ${CI_JOB_TOKEN}" \
+        "${BASE_URL}/scripts%2Fhumble_check_rules.json/raw?ref=${VAUCHI_SCRIPTS_REF}" \
         -o .ratchet-scripts/humble_check_rules.json
-      curl --silent --fail \
-        "${CI_API_V4_URL}/projects/vauchi%2Fscripts/repository/files/scripts%2Fhumble_check.baseline.json/raw?ref=${VAUCHI_SCRIPTS_REF}" \
+      curl -sf -H "PRIVATE-TOKEN: ${CI_JOB_TOKEN}" \
+        "${BASE_URL}/scripts%2Fhumble_check.baseline.json/raw?ref=${VAUCHI_SCRIPTS_REF}" \
         -o .ratchet-scripts/humble_check.baseline.json
+      printf '%s  %s\n' "${HUMBLE_PY_SHA256}" .ratchet-scripts/humble_check.py | sha256sum -c -
+      printf '%s  %s\n' "${HUMBLE_RULES_SHA256}" .ratchet-scripts/humble_check_rules.json | sha256sum -c -
+      printf '%s  %s\n' "${HUMBLE_BASELINE_SHA256}" .ratchet-scripts/humble_check.baseline.json | sha256sum -c -
+      chmod +x .ratchet-scripts/humble_check.py
   script:
     - python3 .ratchet-scripts/humble_check.py --repo "${CI_PROJECT_NAME}" --repo-path "${CI_PROJECT_DIR}" --config .ratchet-scripts/humble_check_rules.json --check .ratchet-scripts/humble_check.baseline.json
   rules:
