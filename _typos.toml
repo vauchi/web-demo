@@ -12,3 +12,7 @@ extend-exclude = [
     "node_modules/",
     "package-lock.json",
 ]
+
+[default.extend-words]
+# flate2 is a Rust compression crate name (not a typo for "flat").
+flate = "flate"

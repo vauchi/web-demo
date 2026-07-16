@@ -34,6 +34,7 @@ include:
       - '/ci-templates/tool-install.yml'
       - '/ci-templates/cross-cutting-lint.yml'
       - '/ci-templates/security-gates.yml'
+      - '/ci-templates/rust-base.yml'
 
 variables:
   VAUCHI_SCRIPTS_REF: "ci-templates-v2026.07.6"
@@ -60,6 +61,76 @@ audit:deps:
     - npm audit --audit-level=moderate
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+
+# WASM Rust supply-chain gates. These use the committed lockfile: dependency
+# changes must include matching cargo-vet exemption updates, and only the
+# browser target is accepted by cargo-deny. The all-lockfile cargo-audit check
+# also catches vulnerable build dependencies.
+security:wasm:audit:
+  extends: [.rust-runner-readonly, .timeout-quick]
+  stage: lint
+  needs: []
+  script:
+    - export PATH="${CARGO_HOME}/bin:${PATH}"
+    - command -v cargo-audit >/dev/null 2>&1 || cargo binstall cargo-audit --no-confirm
+    - cd wasm
+    # atomic-polyfill is host-only (not in the wasm32 graph) and has no patched
+    # version; cargo-audit cannot filter it by Cargo target.
+    - cargo audit --file Cargo.lock --deny warnings --ignore RUSTSEC-2023-0089
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        compare_to: refs/heads/$CI_DEFAULT_BRANCH
+        paths:
+          - "wasm/Cargo.toml"
+          - "wasm/Cargo.lock"
+          - "wasm/deny.toml"
+          - ".gitlab-ci.yml"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+
+security:wasm:deny:
+  extends: [.rust-runner-readonly, .timeout-quick]
+  stage: lint
+  needs: []
+  script:
+    - export PATH="${CARGO_HOME}/bin:${PATH}"
+    - command -v cargo-deny >/dev/null 2>&1 || cargo binstall cargo-deny --no-confirm
+    - cd wasm
+    - cargo deny --manifest-path Cargo.toml check
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        compare_to: refs/heads/$CI_DEFAULT_BRANCH
+        paths:
+          - "wasm/Cargo.toml"
+          - "wasm/Cargo.lock"
+          - "wasm/deny.toml"
+          - ".gitlab-ci.yml"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "schedule"
+
+security:wasm:vet:
+  extends: [.rust-runner-readonly, .timeout-quick]
+  stage: lint
+  needs: []
+  script:
+    - export PATH="${CARGO_HOME}/bin:${PATH}"
+    - command -v cargo-vet >/dev/null 2>&1 || cargo binstall cargo-vet --no-confirm
+    - cd wasm
+    - cargo fetch --locked
+    - cargo vet --locked
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+      changes:
+        compare_to: refs/heads/$CI_DEFAULT_BRANCH
+        paths:
+          - "wasm/Cargo.toml"
+          - "wasm/Cargo.lock"
+          - "wasm/supply-chain/**"
+          - ".gitlab-ci.yml"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
     - if: $CI_PIPELINE_SOURCE == "schedule"
 
