@@ -136,6 +136,19 @@ security:wasm:vet:
 
 build:wasm:
   stage: build-wasm
+  variables:
+    WASM_PACK_VERSION: "0.13.1"
+  before_script:
+    # Runner hosts drift (wasm-pack vanished 2026-07-23, pipeline
+    # 2700363043) — bootstrap a pinned prebuilt binary when absent
+    # instead of relying on host provisioning.
+    - |
+      if ! command -v wasm-pack >/dev/null 2>&1; then
+        mkdir -p .ci-bin
+        curl -sSL "https://github.com/rustwasm/wasm-pack/releases/download/v${WASM_PACK_VERSION}/wasm-pack-v${WASM_PACK_VERSION}-x86_64-unknown-linux-musl.tar.gz" \
+          | tar -xz --strip-components=1 -C .ci-bin
+        export PATH="$PWD/.ci-bin:$PATH"
+      fi
   script:
     - cd wasm
     - wasm-pack build --target web
