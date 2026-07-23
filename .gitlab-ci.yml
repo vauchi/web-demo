@@ -24,7 +24,7 @@ include:
   - template: Security/SAST.gitlab-ci.yml
   - template: Security/Secret-Detection.gitlab-ci.yml
   - project: 'vauchi/scripts'
-    ref: 5f6614ba3de5f462978d5222b682c27d2dfe8d3a
+    ref: ci-templates-v2026.07.11
     file:
       - '/ci-templates/design-drift.yml'
       - '/ci-templates/removed-symbols.yml'
@@ -37,7 +37,7 @@ include:
       - '/ci-templates/rust-base.yml'
 
 variables:
-  VAUCHI_SCRIPTS_REF: "5f6614ba3de5f462978d5222b682c27d2dfe8d3a"
+  VAUCHI_SCRIPTS_REF: "ci-templates-v2026.07.11"
   SAST_EXCLUDED_PATHS: "dist/, node_modules/, wasm/pkg/, wasm/target/"
   SECRET_DETECTION_EXCLUDED_PATHS: "dist/, node_modules/, wasm/pkg/, wasm/target/"
   SAST_ANALYZER_IMAGE_TAG: "5"
