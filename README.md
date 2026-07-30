@@ -1,7 +1,11 @@
 <!-- SPDX-FileCopyrightText: 2026 Mattia Egloff <mattia.egloff@pm.me> -->
 <!-- SPDX-License-Identifier: GPL-3.0-or-later -->
 
-> **Mirror:** This repo is a read-only mirror of [gitlab.com/vauchi/web-demo](https://gitlab.com/vauchi/web-demo). Please open issues and merge requests there.
+# Vauchi Web Demo
+
+> **Mirror:** This repo is a read-only mirror of
+> [gitlab.com/vauchi/web-demo](https://gitlab.com/vauchi/web-demo).
+> Please open issues and merge requests there.
 
 [![Pipeline](https://img.shields.io/endpoint?url=https://vauchi.gitlab.io/web-demo/badges/pipeline.json&label=pipeline)](https://gitlab.com/vauchi/web-demo/-/pipelines)
 [![REUSE](https://api.reuse.software/badge/gitlab.com/vauchi/web-demo)](https://api.reuse.software/info/gitlab.com/vauchi/web-demo)
@@ -11,8 +15,6 @@
 > under heavy development: not yet ready for production, and APIs may
 > change without notice. If you're here now, you can help shape it —
 > try it, break it, and tell us what's missing.
-
-# Vauchi Web Demo
 
 Browser-based demo of Vauchi — living contact cards, exchanged in person.
 
