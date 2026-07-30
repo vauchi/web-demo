@@ -29,11 +29,8 @@ crypto backend.
 ## Build
 
 ```bash
-# Build WASM module
-cd wasm && wasm-pack build --target web && cd ..
-
-# Build web app
-npm install
+npm ci
+npm run build:wasm
 npm run build
 ```
 
@@ -47,10 +44,14 @@ npm run dev
 
 This app implements the core-driven UI contract:
 
-- **ScreenRenderer** renders `ScreenModel` from core (JSON via WASM bridge)
-- **14 SolidJS components** map to core's `Component` enum variants
-- **ActionHandler** maps user input to `UserAction` JSON
-- **WASM bridge** replaces Tauri IPC with direct `wasm-bindgen` calls
+- Core reduces presentation events into ordered command batches.
+- A generic SolidJS renderer maps prepared presentation nodes to the DOM.
+- A contextual command bar exposes Back, navigation, primary, and secondary
+  roles without interpreting domain identifiers.
+- Core selects compact, medium, and expanded surface composition from raw
+  window facts.
+- The WASM bridge exposes only initial commands, event dispatch, and
+  lifecycle functions.
 
 Crypto uses hybrid WebCrypto (browser-native for
 7/9 primitives) + RustCrypto (ChaCha20-Poly1305, Argon2

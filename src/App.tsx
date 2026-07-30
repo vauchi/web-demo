@@ -1,224 +1,388 @@
 // SPDX-FileCopyrightText: 2026 Mattia Egloff <mattia.egloff@pm.me>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-import { createSignal, onCleanup, onMount, Show, For } from "solid-js";
 import {
-  initWasm,
+  createMemo,
+  createSignal,
+  For,
+  onCleanup,
+  onMount,
+  Show,
+} from "solid-js";
+import { ContextCommandBar } from "./presentation/ContextCommandBar";
+import {
+  actionActivated,
+  backRequested,
+  environmentChanged,
+  overlayDismissed,
+  surfaceActivated,
+} from "./presentation/events";
+import { PresentationOverlay } from "./presentation/PresentationOverlay";
+import { visibleSurfaceIds } from "./presentation/selectors";
+import {
+  applyPresentationCommands,
+  emptyPresentationState,
+  type PresentationState,
+} from "./presentation/state";
+import { PresentationSurface } from "./presentation/PresentationSurface";
+import type {
+  ActionSpec,
+  PlatformCommand,
+  PresentationEvent,
+} from "./types/presentation";
+import {
   createWorkflow,
-  getCurrentScreen,
-  handleAction,
-  onWakeup,
   destroyWorkflow,
+  dispatch,
+  initialCommands,
+  initWasm,
 } from "./wasm/bridge";
-import { ScreenRenderer } from "./core-ui/ScreenRenderer";
-import type { Command, ScreenModel } from "./types/core";
 
 interface Toast {
-  title?: string;
   message: string;
-  actionId?: string;
-  actionLabel?: string;
 }
 
-// TODO(HUMBLE): W — hardcodes demo workflow catalogue; core should drive workflow list (see _private/docs/problems/2026-07-06-desktop-tui-web-domain-shell-violations)
-const WORKFLOWS = [
-  { id: "onboarding", label: "Onboarding" },
-  { id: "emergency_shred", label: "Emergency Shred" },
-  { id: "lock_screen", label: "Lock Screen" },
-] as const;
+const hasVariant = (
+  command: PlatformCommand,
+  variant: string,
+): boolean => (
+  typeof command === "object"
+  && command !== null
+  && variant in command
+);
 
 export default function App() {
-  const [screen, setScreen] = createSignal<ScreenModel | null>(null);
+  const [state, setState] = createSignal<PresentationState>(
+    emptyPresentationState(),
+  );
   const [loading, setLoading] = createSignal(true);
   const [error, setError] = createSignal<string | null>(null);
   const [toast, setToast] = createSignal<Toast | null>(null);
-  const [activeWorkflow, setActiveWorkflow] = createSignal("onboarding");
-  const [wasmReady, setWasmReady] = createSignal(false);
+  const [reducedMotion, setReducedMotion] = createSignal(false);
   let workflowHandle: number | null = null;
+  let coreAvailable = false;
   let toastTimer: ReturnType<typeof setTimeout> | undefined;
-  let wakeupTimer: number | undefined;
+  let environmentFrame: number | undefined;
+  let motionQuery: MediaQueryList | undefined;
+  let overlayReturnFocusId: string | null = null;
 
-  const showToast = (t: Toast) => {
+  const surfaceIds = createMemo(() => visibleSurfaceIds(
+    state().profile,
+    Object.keys(state().surfaces),
+  ));
+  const activeSurfaceId = createMemo(() => (
+    state().profile?.active_surface ?? surfaceIds()[0] ?? null
+  ));
+  const activeBar = createMemo(() => {
+    const surfaceId = activeSurfaceId();
+    return surfaceId ? state().bars[surfaceId]?.bar ?? null : null;
+  });
+
+  const showToast = (message: string) => {
     clearTimeout(toastTimer);
-    setToast(t);
+    setToast({ message });
     toastTimer = setTimeout(() => setToast(null), 4000);
   };
 
-  const armWakeup = (commands: Command[]) => {
-    const schedule = commands.find((c) => "ScheduleWakeup" in c)?.ScheduleWakeup;
-    if (!schedule) return;
-    // Use earliestSecs as the foreground cadence; min_interval_secs keeps us
-    // from firing more often than core wants.
-    const delayMs = Math.max(schedule.earliest_secs, schedule.min_interval_secs) * 1000;
-    clearTimeout(wakeupTimer);
-    wakeupTimer = window.setTimeout(() => {
-      if (workflowHandle === null) return;
-      const envelope = onWakeup(workflowHandle);
-      setScreen(getCurrentScreen(workflowHandle));
-      armWakeup(envelope.commands);
-    }, delayMs);
-  };
-
-  const bootstrapWakeup = () => {
-    if (workflowHandle === null) return;
-    const envelope = onWakeup(workflowHandle);
-    armWakeup(envelope.commands);
-  };
-
-  const startWorkflow = (workflowType: string) => {
-    clearTimeout(wakeupTimer);
-    if (workflowHandle !== null) {
-      destroyWorkflow(workflowHandle);
+  const applyCommands = (commands: PlatformCommand[]) => {
+    const focusedId = document.activeElement
+      ?.getAttribute("data-presentation-id");
+    const result = applyPresentationCommands(state(), commands);
+    if (!result.ok) {
+      setError(`Core presentation transaction rejected: ${result.error}`);
+      return;
     }
-    workflowHandle = createWorkflow(workflowType);
-    setActiveWorkflow(workflowType);
-    setScreen(getCurrentScreen(workflowHandle));
-    // ADR-044 Am2a: the on_wakeup loop replaces the frontend requires_poll loop.
-    bootstrapWakeup();
+    if (!state().overlay && result.state.overlay) {
+      overlayReturnFocusId = focusedId ?? null;
+    }
+    setState(result.state);
+    for (const effect of result.effects) runEffect(effect);
+    if (focusedId && !result.state.overlay) {
+      queueMicrotask(() => {
+        document.querySelector<HTMLElement>(
+          `[data-presentation-id="${CSS.escape(focusedId)}"]`,
+        )?.focus();
+      });
+    }
   };
 
-  const onAction = (actionJson: string) => {
-    if (workflowHandle === null) return;
-    const resultJson = handleAction(workflowHandle, actionJson);
+  const send = (
+    event: PresentationEvent | Record<string, unknown>,
+  ) => {
+    if (!coreAvailable || workflowHandle === null) return;
     try {
-      const result = JSON.parse(resultJson);
-      if (result.error) {
-        console.warn("Action error:", result.error);
-        return;
-      }
-      if (result.ShowAlert) {
-        showToast({ title: result.ShowAlert.title, message: result.ShowAlert.message });
-      }
-      if (result.ShowToast) {
-        showToast({
-          message: result.ShowToast.message,
-          actionId: result.ShowToast.undo_action_id,
-          actionLabel: result.ShowToast.undo_label,
-        });
-      }
-      // TODO(HUMBLE): W — frontend synthesizes toast messages for Complete / WipeComplete; core should emit Toast result (see _private/docs/problems/2026-07-06-desktop-tui-web-domain-shell-violations)
-      if (result.Complete || result === "Complete") {
-        showToast({ title: "Done", message: "Workflow completed." });
-      }
-      if (result.WipeComplete || result === "WipeComplete") {
-        showToast({ title: "Wiped", message: "All data has been erased." });
-      }
-      // ADR-044 Am2a: core owns the back decision. When it has nothing to pop
-      // it tells us to perform the native back default; in a browser tab that
-      // is a no-op because the OS back gesture was already forwarded to core.
-      if (result === "PerformNativeBack") {
-        return;
-      }
-    } catch {
-      // Non-JSON response — ignore
+      applyCommands(dispatch(workflowHandle, event));
+    } catch (caught) {
+      setError(`Core event rejected: ${String(caught)}`);
     }
-    const updated = getCurrentScreen(workflowHandle);
-    setScreen(updated);
   };
 
-  const handleKeyDown = (event: KeyboardEvent) => {
+  const surfaceForEvent = (
+    event: PresentationEvent,
+  ): string | null => {
+    if ("SurfaceActivated" in event) return null;
+    const value = Object.values(event)[0] as { surface_id?: string };
+    return value.surface_id ?? null;
+  };
+
+  const sendInteractive = (event: PresentationEvent) => {
+    const surfaceId = surfaceForEvent(event);
+    if (surfaceId) send(surfaceActivated(surfaceId));
+    send(event);
+  };
+
+  const restoreOverlayFocus = () => {
+    const presentationId = overlayReturnFocusId;
+    overlayReturnFocusId = null;
+    if (!presentationId) return;
+    queueMicrotask(() => document.querySelector<HTMLElement>(
+      `[data-presentation-id="${CSS.escape(presentationId)}"]`,
+    )?.focus());
+  };
+
+  const dismissOverlay = () => {
+    const overlay = state().overlay;
+    if (!overlay) return;
+    setState({ ...state(), overlay: null });
+    send(overlayDismissed(overlay.surface_id, overlay.overlay.kind));
+    restoreOverlayFocus();
+  };
+
+  const selectOverlayAction = (event: PresentationEvent) => {
+    setState({ ...state(), overlay: null });
+    sendInteractive(event);
+    restoreOverlayFocus();
+  };
+
+  const startDemo = () => {
+    if (workflowHandle !== null) destroyWorkflow(workflowHandle);
+    workflowHandle = createWorkflow("onboarding");
+    applyCommands(initialCommands(workflowHandle));
+  };
+
+  const reportEnvironment = () => {
+    if (!coreAvailable) return;
+    cancelAnimationFrame(environmentFrame ?? 0);
+    environmentFrame = requestAnimationFrame(() => {
+      const coarse = window.matchMedia("(pointer: coarse)").matches;
+      const fine = window.matchMedia("(pointer: fine)").matches;
+      const motion = window.matchMedia("(prefers-reduced-motion: reduce)")
+        .matches;
+      setReducedMotion(motion);
+      send(environmentChanged(
+        document.documentElement.clientWidth,
+        document.documentElement.clientHeight,
+        [
+          ...(coarse ? ["touch" as const] : []),
+          ...(fine ? ["pointer" as const] : []),
+          "keyboard",
+        ],
+        motion,
+      ));
+    });
+  };
+
+  const activateShortcut = (action: ActionSpec | null | undefined) => {
+    const surfaceId = activeSurfaceId();
+    if (!surfaceId || !action?.enabled) return;
+    sendInteractive(actionActivated(surfaceId, action.interaction_id));
+  };
+
+  const onKeyDown = (event: KeyboardEvent) => {
+    const bar = activeBar();
     if (event.key === "Escape") {
       event.preventDefault();
-      onAction(JSON.stringify("NavigateBack"));
+      if (state().overlay) {
+        dismissOverlay();
+      } else {
+        const surfaceId = activeSurfaceId();
+        if (surfaceId) sendInteractive(backRequested(surfaceId));
+      }
+      return;
+    }
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+      event.preventDefault();
+      activateShortcut(bar?.navigation);
+    } else if (
+      (event.metaKey || event.ctrlKey)
+      && event.key === "Enter"
+    ) {
+      event.preventDefault();
+      activateShortcut(bar?.primary);
+    } else if (event.altKey && event.key === "ArrowDown") {
+      event.preventDefault();
+      activateShortcut(bar?.secondary);
+    } else if (
+      (event.metaKey || event.ctrlKey)
+      && event.key.toLowerCase() === "z"
+      && bar?.primary?.shortcut === "undo"
+    ) {
+      event.preventDefault();
+      activateShortcut(bar.primary);
     }
   };
 
-  const handlePopState = () => {
-    // ADR-044 Am2a: forward browser back unconditionally as UserAction::NavigateBack.
-    onAction(JSON.stringify("NavigateBack"));
+  const runEffect = (command: PlatformCommand) => {
+    if (hasVariant(command, "ShowToast")) {
+      const value = (command as {
+        ShowToast: { toast: { message: string } };
+      }).ShowToast;
+      showToast(value.toast.message);
+    } else if (hasVariant(command, "PresentAlert")) {
+      const value = (command as {
+        PresentAlert: { alert: { title: string; message: string } };
+      }).PresentAlert.alert;
+      window.alert(`${value.title}\n\n${value.message}`);
+    } else if (hasVariant(command, "OpenExternalUrl")) {
+      const { url } = (command as {
+        OpenExternalUrl: { url: string };
+      }).OpenExternalUrl;
+      window.open(url, "_blank", "noopener,noreferrer");
+    } else if (hasVariant(command, "ExportFile")) {
+      exportFile((command as { ExportFile: { file: unknown } }).ExportFile.file);
+    } else if (hasVariant(command, "QrRequestScan")) {
+      send({
+        HardwareUnavailable: { transport: "camera" },
+      });
+    } else if (command === "ResetApplication") {
+      startDemo();
+    } else if (hasVariant(command, "PostNotification")) {
+      postNotification(
+        (command as { PostNotification: { notification: unknown } })
+          .PostNotification.notification,
+      );
+    }
   };
 
   onMount(async () => {
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("popstate", handlePopState);
-
+    window.addEventListener("keydown", onKeyDown);
+    window.addEventListener("resize", reportEnvironment);
+    motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    motionQuery.addEventListener("change", reportEnvironment);
     try {
-      await initWasm();
-      setWasmReady(true);
-      startWorkflow("onboarding");
-    } catch (e) {
-      setError(`Failed to initialize: ${e}`);
+      coreAvailable = await initWasm();
+      startDemo();
+      reportEnvironment();
+    } catch (caught) {
+      setError(`Failed to initialize: ${String(caught)}`);
     } finally {
       setLoading(false);
     }
   });
 
   onCleanup(() => {
-    window.removeEventListener("keydown", handleKeyDown);
-    window.removeEventListener("popstate", handlePopState);
-    if (workflowHandle !== null) {
-      destroyWorkflow(workflowHandle);
-      workflowHandle = null;
-    }
+    window.removeEventListener("keydown", onKeyDown);
+    window.removeEventListener("resize", reportEnvironment);
+    motionQuery?.removeEventListener("change", reportEnvironment);
+    cancelAnimationFrame(environmentFrame ?? 0);
+    if (workflowHandle !== null) destroyWorkflow(workflowHandle);
     clearTimeout(toastTimer);
-    clearTimeout(wakeupTimer);
   });
 
   return (
-    <div class="app">
+    <div
+      class="app"
+      data-window-class={state().profile?.window_class ?? "compact"}
+      data-pane-layout={state().profile?.pane_layout ?? "single"}
+      data-reduced-motion={reducedMotion()}
+    >
       <header class="app-header">
         <h1>Vauchi Demo</h1>
-        <p class="demo-notice">
-          This is a sandboxed demo. Data is wiped every hour.
-          The web demo is a limited preview — native apps offer the full
-          experience including offline support, background sync, hardware
-          exchange, and device linking.
-        </p>
-        <nav class="store-links" aria-label="Download native apps">
-          <a href="https://vauchi.app/#ios" target="_blank" rel="noopener noreferrer">iOS</a>
-          <a href="https://vauchi.app/#android" target="_blank" rel="noopener noreferrer">Android</a>
-          <a href="https://vauchi.app/#desktop" target="_blank" rel="noopener noreferrer">Desktop</a>
-        </nav>
-        <Show when={wasmReady()}>
-          <nav class="workflow-tabs" role="tablist" aria-label="Demo workflows">
-            <For each={WORKFLOWS}>
-              {(w) => (
-                <button
-                  role="tab"
-                  aria-selected={activeWorkflow() === w.id}
-                  class={`workflow-tab ${activeWorkflow() === w.id ? "workflow-tab-active" : ""}`}
-                  onClick={() => startWorkflow(w.id)}
-                >
-                  {w.label}
-                </button>
+        <p>Sandboxed preview; Core prepares every visible control.</p>
+      </header>
+      <main class="presentation-workspace">
+        <Show
+          when={!loading()}
+          fallback={
+            <div class="loading-container">
+              <div class="spinner" />
+              <span>Loading Core…</span>
+            </div>
+          }
+        >
+          <Show
+            when={!error()}
+            fallback={<p class="error" role="alert">{error()}</p>}
+          >
+            <For each={surfaceIds()}>
+              {(surfaceId) => (
+                <Show when={state().surfaces[surfaceId]}>
+                  {(surface) => (
+                    <PresentationSurface
+                      surface={surface()}
+                      active={activeSurfaceId() === surfaceId}
+                      onEvent={sendInteractive}
+                    />
+                  )}
+                </Show>
               )}
             </For>
-          </nav>
-        </Show>
-      </header>
-      <main>
-        <Show when={!loading()} fallback={<div class="loading-container"><div class="spinner" /><span>Loading WASM module...</span></div>}>
-          <Show when={!error()} fallback={<p class="error" role="alert">{error()}</p>}>
-            <Show when={screen()}>
-              {(s) => <ScreenRenderer screen={s()} onAction={onAction} />}
-            </Show>
           </Show>
         </Show>
       </main>
+      <Show when={activeSurfaceId()}>
+        {(surfaceId) => (
+          <ContextCommandBar
+            surfaceId={surfaceId()}
+            bar={activeBar()}
+            onEvent={sendInteractive}
+          />
+        )}
+      </Show>
+      <Show when={state().overlay}>
+        {(overlay) => (
+          <PresentationOverlay
+            surfaceId={overlay().surface_id}
+            overlay={overlay().overlay}
+            reducedMotion={reducedMotion()}
+            onAction={selectOverlayAction}
+            onDismiss={dismissOverlay}
+          />
+        )}
+      </Show>
       <div class="toast-region" aria-live="polite" aria-atomic="true">
         <Show when={toast()}>
-          {(t) => (
+          {(visibleToast) => (
             <div class="toast">
-              <Show when={t().title}>{(title) => <strong>{title()}</strong>}</Show>
-              <span>{t().message}</span>
-              <Show when={t().actionId && t().actionLabel}>
-                <button
-                  type="button"
-                  class="toast-action"
-                  onClick={() => {
-                    const actionId = t().actionId;
-                    if (!actionId) return;
-                    onAction(JSON.stringify({ UndoPressed: { action_id: actionId } }));
-                    setToast(null);
-                  }}
-                >
-                  {t().actionLabel}
-                </button>
-              </Show>
+              <span>{visibleToast().message}</span>
             </div>
           )}
         </Show>
       </div>
     </div>
   );
+}
+
+function exportFile(value: unknown) {
+  if (
+    typeof value !== "object"
+    || value === null
+    || !("data" in value)
+  ) return;
+  const file = value as {
+    suggested_name?: string;
+    mime_type?: string;
+    data: number[];
+  };
+  const url = URL.createObjectURL(new Blob(
+    [new Uint8Array(file.data)],
+    { type: file.mime_type ?? "application/octet-stream" },
+  ));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = file.suggested_name ?? "vauchi-export";
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+function postNotification(value: unknown) {
+  if (
+    Notification.permission !== "granted"
+    || typeof value !== "object"
+    || value === null
+  ) return;
+  const notification = value as { title?: string; body?: string };
+  new Notification(notification.title ?? "Vauchi", {
+    body: notification.body,
+  });
 }
