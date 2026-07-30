@@ -27,6 +27,7 @@ include:
     ref: feature/contextual-command-surface
     file:
       - '/ci-templates/design-drift.yml'
+      - '/ci-templates/parser-parity.yml'
       - '/ci-templates/removed-symbols.yml'
       - '/ci-templates/github-mirror.yml'
       - '/ci-templates/vrt-upload.yml'
@@ -371,6 +372,16 @@ check:design-drift:
         paths:
           - "src/presentation/**"
           - ".gitlab-ci.yml"
+
+# Parser parity: verify every canonical presentation node is rendered.
+check:parser-parity:
+  extends: .parser-parity-job
+  variables:
+    FRONTEND_NAME: "web-demo"
+    PARSER_FILE: "src/presentation/PresentationNodeRenderer.tsx"
+    PARSER_PROTOCOL: "presentation"
+    PARSER_SCRIPT_REF: "feature/contextual-command-surface"
+    CORE_REF: "feature/contextual-command-surface"
 
 # Removed symbols: detect stale references to removed features
 check:removed-symbols:
