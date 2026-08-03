@@ -80,6 +80,33 @@ describe("presentation command cache", () => {
     expect(result.effects).toEqual([]);
   });
 
+  // Core's revision advances only on user actions, so racing full rebuilds
+  // (wakeup re-load, invalidation dispatch) legitimately re-emit the same
+  // surface at the same revision. Only a strictly older revision is stale.
+  //
+  // Android and macOS both rejected equal and were fixed today
+  // (vauchi/android!610, vauchi/macos!346); on Android it failed every cold
+  // launch, and because transactions apply atomically each rejection
+  // discarded every command batched with it.
+  it("re-applies a surface re-emitted at the same revision", () => {
+    const initial = applyPresentationCommands(emptyPresentationState(), [
+      { ReplaceSurface: { surface: surface("main", 2) } },
+    ]);
+    expect(initial.ok).toBe(true);
+    if (!initial.ok) return;
+
+    const rebuilt = surface("main", 2);
+    rebuilt.title = "Rebuilt";
+    const reapplied = applyPresentationCommands(initial.state, [
+      { ReplaceSurface: { surface: rebuilt } },
+    ]);
+
+    expect(reapplied.ok).toBe(true);
+    if (!reapplied.ok) return;
+    expect(reapplied.state.surfaces.main.title).toBe("Rebuilt");
+    expect(reapplied.state.surfaces.main.revision).toBe(2);
+  });
+
   it("rejects an entire stale transaction without changing visible state", () => {
     const initial = applyPresentationCommands(emptyPresentationState(), [
       { ReplaceSurface: { surface: surface("main", 2) } },

@@ -70,7 +70,15 @@ export function applyPresentationCommands(
     if (hasVariant(command, "ReplaceSurface")) {
       const { surface } = command.ReplaceSurface as { surface: SurfaceSpec };
       const previous = state.surfaces[surface.surface_id];
-      if (previous && surface.revision <= previous.revision) {
+      // Core's revision advances only on user actions, so racing full
+      // rebuilds (wakeup re-load, invalidation dispatch) legitimately
+      // re-emit the same surface at the same revision. Only a strictly
+      // older revision is stale; equal re-applies, last-writer wins.
+      //
+      // Rejecting equal discards the whole transaction, since batches
+      // apply atomically — the same defect Android and macOS shipped
+      // (vauchi/android!610, vauchi/macos!346).
+      if (previous && surface.revision < previous.revision) {
         return {
           ok: false,
           error: `stale surface revision for ${surface.surface_id}`,
