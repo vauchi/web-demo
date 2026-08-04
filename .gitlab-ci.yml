@@ -30,6 +30,7 @@ include:
       - '/ci-templates/parser-parity.yml'
       - '/ci-templates/removed-symbols.yml'
       - '/ci-templates/github-mirror.yml'
+      - '/ci-templates/badges.yml'
       - '/ci-templates/vrt-upload.yml'
       - '/ci-templates/verified-fetch.yml'
       - '/ci-templates/tool-install.yml'
@@ -203,23 +204,15 @@ coverage:unit:
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
 pages:
-  extends: .verified-fetch-script
-  stage: deploy
-  variables:
-    FETCH_SCRIPT_PATH: "scripts/ci/generate-badges.sh"
-    FETCH_SCRIPT_OUTPUT: "generate-badges.sh"
-    FETCH_SCRIPT_SHA256: "e1fc40dffa03712b784144d4324b7f66064c711a79a69a5d658fea89fa5de27c"
+  extends: .badges-pages
+  needs:
+    - job: build:web
+      artifacts: true
   script:
+    - fetch_vauchi_script scripts/ci/generate-badges.sh scripts/ci/generate-badges.sh
+    - fetch_vauchi_script scripts/lib/common.sh scripts/lib/common.sh
     - mv dist public
-    - ./generate-badges.sh public/badges
-  artifacts:
-    paths:
-      - public
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "schedule"
-      when: never
-    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
-  tags: [linux]
+    - scripts/ci/generate-badges.sh public/badges
 
 # ============================================================
 # Security Stage
