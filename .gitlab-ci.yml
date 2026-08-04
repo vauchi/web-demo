@@ -153,7 +153,8 @@ build:wasm:
       fi
   script:
     - cd wasm
-    - wasm-pack build --target web
+    - cargo test --locked
+    - wasm-pack build --target web -- --locked
   artifacts:
     paths:
       - wasm/pkg/

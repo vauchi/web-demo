@@ -71,7 +71,58 @@ pub fn workflow_destroy(handle: i32) {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use serde::Deserialize;
     use serde_json::Value;
+    use vauchi_core::{ContextBar, SurfaceId, SurfaceSpec};
+
+    // Fixture versions are exact contracts: additive fields require an
+    // explicit WASM-consumer review rather than being ignored silently.
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields)]
+    struct PresentationContractFixture {
+        schema_version: u64,
+        initial_commands: Vec<Command>,
+        steps: Vec<PresentationContractStep>,
+        expected_state: ExpectedPresentationState,
+    }
+
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields)]
+    struct PresentationContractStep {
+        // The WASM consumer decodes both directions of the wire corpus even
+        // though Core's AppEngine owns the authoritative event replay.
+        #[serde(rename = "event")]
+        _event: Event,
+        commands: Vec<Command>,
+    }
+
+    #[derive(Deserialize)]
+    #[serde(deny_unknown_fields)]
+    struct ExpectedPresentationState {
+        active_surface_id: SurfaceId,
+        surface: SurfaceSpec,
+        context_bar: ContextBar,
+    }
+
+    // @scenario: generic_presentation_protocol.feature :: Every shell renders the same prepared presentation
+    #[test]
+    fn wasm_decodes_the_core_owned_presentation_contract_fixture() {
+        let fixture: PresentationContractFixture =
+            serde_json::from_str(vauchi_app::ui::presentation_contract_fixture_json())
+                .expect("Core-owned presentation fixture");
+        assert_eq!(
+            fixture.schema_version, 1,
+            "fixture schema changed; re-verify the WASM decoder contract"
+        );
+        assert!(!fixture.initial_commands.is_empty());
+        assert!(!fixture.steps.is_empty());
+        assert!(fixture.steps.iter().all(|step| !step.commands.is_empty()));
+        assert_eq!(
+            fixture.expected_state.active_surface_id,
+            fixture.expected_state.surface.surface_id
+        );
+        assert!(fixture.expected_state.context_bar.primary.is_some());
+    }
 
     // @scenario: generic_presentation_protocol.feature :: Release contains only the generic action system
     #[test]
