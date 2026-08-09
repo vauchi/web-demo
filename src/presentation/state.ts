@@ -6,6 +6,7 @@ import type {
   OverlaySpec,
   PlatformCommand,
   PresentationProfile,
+  SurfaceId,
   SurfaceSpec,
 } from "../types/presentation";
 
@@ -122,6 +123,27 @@ export function applyPresentationCommands(
         };
       }
       state.overlay = value;
+      continue;
+    }
+
+    if (hasVariant(command, "DismissOverlay")) {
+      // Core rewrites a repeat PresentOverlay into this so the context-bar
+      // buttons toggle, and sends one when a destination inside the overlay
+      // is chosen. Without this arm the command fell through to `effects`
+      // and the menu stayed drawn over the screen it had just navigated to.
+      //
+      // Matching kind as well as surface keeps a stale dismiss from closing
+      // a menu Core has since replaced.
+      const value = command.DismissOverlay as {
+        surface_id: SurfaceId;
+        kind: string;
+      };
+      if (
+        state.overlay?.surface_id === value.surface_id &&
+        state.overlay?.overlay.kind === value.kind
+      ) {
+        state.overlay = null;
+      }
       continue;
     }
 

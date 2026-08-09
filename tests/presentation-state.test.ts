@@ -284,3 +284,82 @@ describe("presentation command cache", () => {
     expect(expanded.state.profile?.active_surface).toBe("detail");
   });
 });
+
+describe("DismissOverlay", () => {
+  // Core rewrites a repeat PresentOverlay into DismissOverlay so the
+  // context-bar buttons toggle, and (since core!1518) emits one when a
+  // destination inside the overlay is chosen. Without an arm for it the
+  // command falls through to `effects`, the overlay never closes, and it
+  // covers the screen the user just navigated to.
+  //
+  // Verified as a live defect on iOS with the same same-surface-only
+  // clearing this file had:
+  // problems/2026-08-07-ios-stale-overlay-and-raw-error-alert
+  const openNavigationOverlay = () => {
+    const initial = applyPresentationCommands(emptyPresentationState(), [
+      { ReplaceSurface: { surface: surface("main", 1) } },
+    ]);
+    if (!initial.ok) throw new Error("surface setup failed");
+    const opened = applyPresentationCommands(initial.state, [
+      {
+        PresentOverlay: {
+          surface_id: "main",
+          revision: 1,
+          overlay: {
+            kind: "navigation",
+            title: "Navigate",
+            items: [action("contacts", "Contacts")],
+          },
+        },
+      },
+    ]);
+    if (!opened.ok) throw new Error("overlay setup failed");
+    return opened.state;
+  };
+
+  it("closes the open overlay", () => {
+    const dismissed = applyPresentationCommands(openNavigationOverlay(), [
+      {
+        DismissOverlay: {
+          surface_id: "main",
+          revision: 1,
+          kind: "navigation",
+        },
+      },
+    ]);
+    expect(dismissed.ok).toBe(true);
+    if (!dismissed.ok) return;
+    expect(dismissed.state.overlay).toBeNull();
+  });
+
+  it("is handled, not passed through as an effect", () => {
+    const dismissed = applyPresentationCommands(openNavigationOverlay(), [
+      {
+        DismissOverlay: {
+          surface_id: "main",
+          revision: 1,
+          kind: "navigation",
+        },
+      },
+    ]);
+    expect(dismissed.ok).toBe(true);
+    if (!dismissed.ok) return;
+    expect(dismissed.effects).toEqual([]);
+  });
+
+  it("leaves an overlay from another surface alone", () => {
+    // A stale dismiss must not close a menu Core has since replaced.
+    const dismissed = applyPresentationCommands(openNavigationOverlay(), [
+      {
+        DismissOverlay: {
+          surface_id: "other",
+          revision: 1,
+          kind: "navigation",
+        },
+      },
+    ]);
+    expect(dismissed.ok).toBe(true);
+    if (!dismissed.ok) return;
+    expect(dismissed.state.overlay).not.toBeNull();
+  });
+});

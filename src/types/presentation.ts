@@ -129,6 +129,7 @@ export type PresentationCommand =
   | { ReplaceSurface: { surface: SurfaceSpec } }
   | { SetContextBar: { surface_id: SurfaceId; revision: number; bar: ContextBar } }
   | { PresentOverlay: { surface_id: SurfaceId; revision: number; overlay: OverlaySpec } }
+  | { DismissOverlay: { surface_id: SurfaceId; revision: number; kind: string } }
   | { SetPresentationProfile: { profile: PresentationProfile } };
 
 export type PlatformCommand =
