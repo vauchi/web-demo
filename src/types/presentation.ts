@@ -121,6 +121,8 @@ export type PresentationEvent =
   | { SurfaceActivated: { surface_id: SurfaceId } }
   | { ActionActivated: { surface_id: SurfaceId; interaction_id: InteractionId } }
   | { ValueChanged: { surface_id: SurfaceId; binding_id: BindingId; value: InputValue } }
+  | { InputSubmitted: { surface_id: SurfaceId; binding_id: BindingId } }
+  | { InputFocusEnded: { surface_id: SurfaceId; binding_id: BindingId } }
   | { BackRequested: { surface_id: SurfaceId } }
   | { OverlayDismissed: { surface_id: SurfaceId; kind: OverlayKind } }
   | { PresentationEnvironmentChanged: { available_width: number; available_height: number; input_modes: InputMode[]; motion: MotionPreference } };

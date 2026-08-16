@@ -6,12 +6,31 @@ import {
   actionActivated,
   backRequested,
   environmentChanged,
+  inputFocusEnded,
+  inputSubmitted,
   overlayDismissed,
   surfaceActivated,
   valueChanged,
 } from "../src/presentation/events";
 
 describe("presentation events", () => {
+  it("names a binding without carrying its value when it is submitted or blurred", () => {
+    // Both say *that* something happened, not what the field now holds —
+    // the value is already Core's from `ValueChanged`.
+    expect(inputSubmitted("groups", "opaque.binding/2")).toEqual({
+      InputSubmitted: {
+        surface_id: "groups",
+        binding_id: "opaque.binding/2",
+      },
+    });
+    expect(inputFocusEnded("groups", "opaque.binding/2")).toEqual({
+      InputFocusEnded: {
+        surface_id: "groups",
+        binding_id: "opaque.binding/2",
+      },
+    });
+  });
+
   it("preserves opaque surface, interaction, and binding identifiers", () => {
     expect(surfaceActivated("detail")).toEqual({
       SurfaceActivated: { surface_id: "detail" },

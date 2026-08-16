@@ -7,7 +7,12 @@ import type {
   PresentationEvent,
   PresentationNode,
 } from "../types/presentation";
-import { actionActivated, valueChanged } from "./events";
+import {
+  actionActivated,
+  inputFocusEnded,
+  inputSubmitted,
+  valueChanged,
+} from "./events";
 import { QrPresentation } from "./QrPresentation";
 
 interface Props {
@@ -84,6 +89,20 @@ export function PresentationNodeRenderer(props: Props) {
                   input().binding_id,
                   { Text: event.currentTarget.value },
                 ),
+              )}
+              // The browser gives both gestures directly: Enter is the
+              // submit key, and blur already means focus left the field —
+              // no tap-outside handling is needed, unlike the native
+              // shells.
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  props.onEvent(
+                    inputSubmitted(props.surfaceId, input().binding_id),
+                  );
+                }
+              }}
+              onBlur={() => props.onEvent(
+                inputFocusEnded(props.surfaceId, input().binding_id),
               )}
             />
             <Show when={input().validation_error}>

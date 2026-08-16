@@ -37,6 +37,25 @@ export const valueChanged = (
   },
 });
 
+/// Enter in a field. Core decides whether the screen does anything with
+/// it; most do not.
+export const inputSubmitted = (
+  surfaceId: SurfaceId,
+  bindingId: BindingId,
+): PresentationEvent => ({
+  InputSubmitted: { surface_id: surfaceId, binding_id: bindingId },
+});
+
+/// A field lost focus without the user having submitted, so Core can
+/// offer a way to commit text left behind rather than committing it on
+/// the user's behalf.
+export const inputFocusEnded = (
+  surfaceId: SurfaceId,
+  bindingId: BindingId,
+): PresentationEvent => ({
+  InputFocusEnded: { surface_id: surfaceId, binding_id: bindingId },
+});
+
 export const backRequested = (surfaceId: SurfaceId): PresentationEvent => ({
   BackRequested: { surface_id: surfaceId },
 });
