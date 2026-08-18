@@ -7,7 +7,7 @@
 > [gitlab.com/vauchi/web-demo](https://gitlab.com/vauchi/web-demo).
 > Please open issues and merge requests there.
 
-[![Pipeline](https://img.shields.io/endpoint?url=https://vauchi.gitlab.io/web-demo/badges/pipeline.json&label=pipeline)](https://gitlab.com/vauchi/web-demo/-/pipelines)
+[![Pipeline](https://img.shields.io/endpoint?url=https://vauchi.gitlab.io/web-demo/badges/pipeline.json&label=pipeline)](https://gitlab.com/vauchi/web-demo)
 [![REUSE](https://api.reuse.software/badge/gitlab.com/vauchi/web-demo)](https://api.reuse.software/info/gitlab.com/vauchi/web-demo)
 
 > [!NOTE]
