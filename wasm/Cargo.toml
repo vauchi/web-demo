@@ -25,3 +25,15 @@ serde = { version = "1.0", features = ["derive"] }
 opt-level = "s"
 lto = true
 overflow-checks = true
+
+# Core vendors a fork of rqrr 0.10.1 and redirects to it with
+# [patch.crates-io], but a patch applies only inside the workspace that
+# declares it — so every consumer of vauchi-core resolves upstream rqrr from
+# crates.io instead. That costs two fixes: the unsound lru 0.16
+# (RUSTSEC-2026-0253, which cargo audit denies here) and core's
+# Perspective::map clamp, without which a near-degenerate QR perspective
+# aborts under panic=abort
+# (problems/2026-05-25-rqrr-perspective-panic-crashes-qr-scan).
+# Same redirect, pointed at the fork inside the core tag already pinned above.
+[patch.crates-io]
+rqrr = { git = "https://gitlab.com/vauchi/core.git", tag = "v0.64.0" }
