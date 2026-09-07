@@ -252,10 +252,6 @@ criteria = "safe-to-deploy"
 version = "1.9.3"
 criteria = "safe-to-deploy"
 
-[[exemptions.indexmap]]
-version = "2.14.0"
-criteria = "safe-to-deploy"
-
 [[exemptions.inout]]
 version = "0.1.4"
 criteria = "safe-to-deploy"
@@ -277,7 +273,7 @@ version = "0.8.2"
 criteria = "safe-to-deploy"
 
 [[exemptions.lru]]
-version = "0.16.4"
+version = "0.18.4"
 criteria = "safe-to-deploy"
 
 [[exemptions.memchr]]
@@ -388,10 +384,6 @@ criteria = "safe-to-deploy"
 version = "0.8.10"
 criteria = "safe-to-deploy"
 
-[[exemptions.rqrr]]
-version = "0.10.1"
-criteria = "safe-to-deploy"
-
 [[exemptions.rustc_version]]
 version = "0.4.1"
 criteria = "safe-to-deploy"
@@ -418,10 +410,6 @@ criteria = "safe-to-deploy"
 
 [[exemptions.schemars]]
 version = "1.2.1"
-criteria = "safe-to-deploy"
-
-[[exemptions.semver]]
-version = "1.0.28"
 criteria = "safe-to-deploy"
 
 [[exemptions.serde_json]]
@@ -614,10 +602,6 @@ criteria = "safe-to-deploy"
 
 [[exemptions.zerovec-derive]]
 version = "0.11.3"
-criteria = "safe-to-deploy"
-
-[[exemptions.zmij]]
-version = "1.0.21"
 criteria = "safe-to-deploy"
 
 [[exemptions.zune-core]]
