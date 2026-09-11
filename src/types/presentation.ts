@@ -112,10 +112,10 @@ export interface SurfaceSpec {
 }
 
 export type InputValue =
-  | { Text: string }
-  | { Boolean: boolean }
-  | { Choice: string | null }
-  | { Number: number };
+  | { text: string }
+  | { boolean: boolean }
+  | { choice: string | null }
+  | { number: number };
 
 export type PresentationEvent =
   | { SurfaceActivated: { surface_id: SurfaceId } }

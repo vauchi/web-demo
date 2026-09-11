@@ -62,7 +62,7 @@ export function QrPresentation(props: Props) {
                 valueChanged(
                   props.surfaceId,
                   props.node.id,
-                  { Text: event.currentTarget.value },
+                  { text: event.currentTarget.value },
                 ),
               )}
             />

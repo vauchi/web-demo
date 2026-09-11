@@ -87,7 +87,7 @@ export function PresentationNodeRenderer(props: Props) {
                 valueChanged(
                   props.surfaceId,
                   input().binding_id,
-                  { Text: event.currentTarget.value },
+                  { text: event.currentTarget.value },
                 ),
               )}
               // The browser gives both gestures directly: Enter is the
@@ -125,7 +125,7 @@ export function PresentationNodeRenderer(props: Props) {
                 valueChanged(
                   props.surfaceId,
                   toggle().binding_id,
-                  { Boolean: event.currentTarget.checked },
+                  { boolean: event.currentTarget.checked },
                 ),
               )}
             />
@@ -145,7 +145,7 @@ export function PresentationNodeRenderer(props: Props) {
                 valueChanged(
                   props.surfaceId,
                   choice().binding_id,
-                  { Choice: event.currentTarget.value || null },
+                  { choice: event.currentTarget.value || null },
                 ),
               )}
             >
@@ -348,7 +348,7 @@ export function PresentationNodeRenderer(props: Props) {
               onInput={(event) => props.onEvent(valueChanged(
                 props.surfaceId,
                 slider().binding_id,
-                { Number: event.currentTarget.valueAsNumber },
+                { number: event.currentTarget.valueAsNumber },
               ))}
             />
           </label>
