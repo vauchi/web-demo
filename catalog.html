@@ -1,0 +1,29 @@
+<!-- SPDX-FileCopyrightText: 2026 Mattia Egloff <mattia.egloff@pm.me> -->
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vauchi — Screen Catalog</title>
+    <link rel="stylesheet" href="/src/styles/app.css" />
+    <script>
+      // Same pre-paint theme detection as index.html so catalog captures
+      // match the app under `prefers-color-scheme` emulation.
+      (function () {
+        var mq = window.matchMedia("(prefers-color-scheme: dark)");
+        function apply(e) {
+          document.documentElement.dataset.theme = e.matches
+            ? "default-dark"
+            : "default-light";
+        }
+        apply(mq);
+        mq.addEventListener("change", apply);
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/catalog.tsx"></script>
+  </body>
+</html>
