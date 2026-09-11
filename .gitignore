@@ -18,3 +18,6 @@ service-account*.json
 
 # Screenshot-walk captures (test:screenshots CI artifacts)
 tests/playwright/screens/
+
+# Screen-catalog captures (test:screen-catalog CI artifacts)
+tests/playwright/catalog/
