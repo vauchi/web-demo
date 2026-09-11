@@ -263,6 +263,32 @@ test:a11y:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
+# Screenshot walk — advisory capture of every screen the demo can reach
+# (first render, onboarding steps, navigation overlay, each destination,
+# compact home). No baselines: the PNG files are review artifacts, and the
+# spec only fails when navigation is broken (too few or identical
+# captures). Uploaded to the VRT service alongside test:vrt.
+test:screenshots:
+  extends: .playwright-base
+  variables:
+    VRT_PLATFORM: web-demo
+    VRT_SCREENSHOT_DIR: tests/playwright/screens
+  script:
+    - npm run build
+    - npx playwright test tests/playwright/screens.spec.ts
+  after_script:
+    - !reference [.vrt-upload-script, script]
+  artifacts:
+    when: always
+    paths:
+      - tests/playwright/screens/
+      - test-results/
+    expire_in: 1 week
+  allow_failure: true
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
 # Visual Regression — diff against committed baselines, fail on regression.
 # Self-detecting (mirror of macos/ios test:snapshots pattern): if no
 # linux-platform baselines exist (e.g. fresh repo or platform mismatch
