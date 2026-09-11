@@ -21,3 +21,6 @@ tests/playwright/screens/
 
 # Screen-catalog captures (test:screen-catalog CI artifacts)
 tests/playwright/catalog/
+
+# Screen catalog fetched by test:screen-catalog
+build/

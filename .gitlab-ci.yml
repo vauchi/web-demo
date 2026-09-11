@@ -289,6 +289,63 @@ test:screenshots:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
+# Screen catalog render — advisory capture of every app screen in Core's
+# screen catalog fixture, replayed through the real renderer with no wasm
+# and no navigation (catalog.html). The catalog is fetched from Core main;
+# until it lands there, the presentation contract fixture is converted into
+# a catalog, and if Core is unreachable the committed smoke fixture runs.
+# No baselines: the PNG files are review artifacts, uploaded to the VRT
+# service alongside test:screenshots.
+test:screen-catalog:
+  extends: .playwright-base
+  variables:
+    VRT_PLATFORM: web-demo
+    VRT_SCREENSHOT_DIR: tests/playwright/catalog
+  script:
+    - npm run build
+    - mkdir -p build
+    - |
+      fetch_core_fixture() {
+        curl -fsSL -u "gitlab-ci-token:${CI_JOB_TOKEN}" \
+          "${CI_API_V4_URL}/projects/vauchi%2Fcore/repository/files/vauchi-app%2Ffixtures%2F${1}/raw?ref=main" \
+          -o "build/${1}"
+      }
+      if fetch_core_fixture screen_catalog_v1.json; then
+        echo "Screen catalog source: core main vauchi-app/fixtures/screen_catalog_v1.json"
+        export VAUCHI_SCREEN_CATALOG=build/screen_catalog_v1.json
+      elif fetch_core_fixture presentation_contract_v1.json; then
+        echo "Screen catalog source: core main vauchi-app/fixtures/presentation_contract_v1.json (converted)"
+        node -e '
+          const fs = require("node:fs");
+          const contract = JSON.parse(fs.readFileSync("build/presentation_contract_v1.json", "utf8"));
+          const batches = [contract.initial_commands, ...contract.steps.map((step) => step.commands)];
+          const titleOf = (commands) => commands.find((c) => c && c.ReplaceSurface)?.ReplaceSurface.surface.title ?? "";
+          const screens = batches.map((commands, i) => ({
+            code_id: i === 0 ? "contract-initial" : "contract-step-" + i,
+            title: titleOf(commands),
+            locale: "en",
+            commands,
+          }));
+          fs.writeFileSync("build/screen_catalog_v1.json", JSON.stringify({ schema_version: 1, screens }));
+        '
+        export VAUCHI_SCREEN_CATALOG=build/screen_catalog_v1.json
+      else
+        echo "Screen catalog source: tests/fixtures/screen_catalog_smoke.json (Core fixtures unreachable)"
+      fi
+      npx playwright test tests/playwright/catalog.spec.ts
+  after_script:
+    - !reference [.vrt-upload-script, script]
+  artifacts:
+    when: always
+    paths:
+      - tests/playwright/catalog/
+      - test-results/
+    expire_in: 1 week
+  allow_failure: true
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+
 # Visual Regression — diff against committed baselines, fail on regression.
 # Self-detecting (mirror of macos/ios test:snapshots pattern): if no
 # linux-platform baselines exist (e.g. fresh repo or platform mismatch
