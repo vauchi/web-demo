@@ -41,14 +41,26 @@ describe("presentation events", () => {
         interaction_id: "opaque.action/7",
       },
     });
-    expect(valueChanged("detail", "opaque.binding/2", { Text: "Alice" }))
+  });
+
+  it("spells input values the way Core deserializes them", () => {
+    // Core's `InputValue` is `rename_all = "snake_case"` (v0.67.0);
+    // a Pascal-case tag is rejected with `unknown variant` and the
+    // whole surface is replaced by the error alert.
+    expect(valueChanged("detail", "opaque.binding/2", { text: "Alice" }))
       .toEqual({
         ValueChanged: {
           surface_id: "detail",
           binding_id: "opaque.binding/2",
-          value: { Text: "Alice" },
+          value: { text: "Alice" },
         },
       });
+    expect(JSON.stringify(valueChanged("d", "b", { boolean: true })))
+      .toContain('"value":{"boolean":true}');
+    expect(JSON.stringify(valueChanged("d", "b", { choice: null })))
+      .toContain('"value":{"choice":null}');
+    expect(JSON.stringify(valueChanged("d", "b", { number: 3 })))
+      .toContain('"value":{"number":3}');
   });
 
   it("encodes back and overlay dismissal as Core events", () => {
