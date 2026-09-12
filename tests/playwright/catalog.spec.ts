@@ -38,9 +38,15 @@ async function renderEntry(page: Page, entry: CatalogEntry): Promise<void> {
   await expect(app).toBeVisible({ timeout: 15_000 });
   await expect(page.getByRole("alert")).toHaveCount(0);
   await expect(app).toHaveAttribute("data-catalog-screen", entry.code_id);
+  // A sub-screen batch also replaces its parent pane (the responsive
+  // companion), so the entry's own surface is not always the first active
+  // one: look for its title among every active surface heading.
   await expect(
-    page.locator("[data-surface-id][data-active='true'] h2").first(),
-  ).toHaveText(entry.title);
+    page
+      .locator("[data-surface-id][data-active='true']")
+      .getByRole("heading", { level: 2, name: entry.title, exact: true })
+      .first(),
+  ).toBeVisible();
 }
 
 async function capture(page: Page, entry: CatalogEntry, suffix: string) {
@@ -50,7 +56,9 @@ async function capture(page: Page, entry: CatalogEntry, suffix: string) {
   });
 }
 
-test.describe.configure({ mode: "serial" });
+// Not serial: one screen that fails to render must not skip the rest of
+// the catalog. The file still runs in one worker, so beforeAll's cleanup
+// happens once.
 
 test.beforeAll(() => {
   if (existsSync(CATALOG_DIR)) rmSync(CATALOG_DIR, { recursive: true });
