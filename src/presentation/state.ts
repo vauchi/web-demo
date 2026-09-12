@@ -26,6 +26,10 @@ export interface PresentationState {
   bars: Record<string, RevisionedBar>;
   profile: PresentationProfile | null;
   overlay: RevisionedOverlay | null;
+  // The surface the most recent ReplaceSurface prepared. A sub-screen
+  // batch replaces the parent pane first and the sub-screen last, so
+  // without a profile this is the surface the user opened.
+  activeSurface: SurfaceId | null;
 }
 
 export type ApplyCommandsResult =
@@ -44,6 +48,7 @@ export const emptyPresentationState = (): PresentationState => ({
   bars: {},
   profile: null,
   overlay: null,
+  activeSurface: null,
 });
 
 const hasVariant = <T extends string>(
@@ -64,6 +69,7 @@ export function applyPresentationCommands(
     bars: { ...current.bars },
     profile: current.profile,
     overlay: current.overlay,
+    activeSurface: current.activeSurface,
   };
   const effects: PlatformCommand[] = [];
 
@@ -86,6 +92,7 @@ export function applyPresentationCommands(
         };
       }
       state.surfaces[surface.surface_id] = surface;
+      state.activeSurface = surface.surface_id;
       delete state.bars[surface.surface_id];
       if (state.overlay?.surface_id === surface.surface_id) {
         state.overlay = null;

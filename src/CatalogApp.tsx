@@ -18,7 +18,10 @@ import {
   type ScreenCatalogEntry,
 } from "./presentation/catalog";
 import { PresentationSurface } from "./presentation/PresentationSurface";
-import { visibleSurfaceIds } from "./presentation/selectors";
+import {
+  activeSurfaceId as selectActiveSurfaceId,
+  visibleSurfaceIds,
+} from "./presentation/selectors";
 import {
   emptyPresentationState,
   type PresentationState,
@@ -67,21 +70,24 @@ export default function CatalogApp() {
   const [error, setError] = createSignal<string | null>(null);
   const [ready, setReady] = createSignal(false);
 
-  const surfaceIds = createMemo(() => visibleSurfaceIds(
-    state().profile,
-    Object.keys(state().surfaces),
+  const windowClass = createMemo(() => (
+    state().profile?.window_class
+    ?? windowClassForWidth(document.documentElement.clientWidth)
+  ));
+  const surfaceIds = createMemo(() => (
+    visibleSurfaceIds(state(), windowClass())
   ));
   const activeSurfaceId = createMemo(() => (
-    state().profile?.active_surface ?? surfaceIds()[0] ?? null
+    selectActiveSurfaceId(state(), windowClass())
+  ));
+  const paneLayout = createMemo(() => (
+    state().profile?.pane_layout
+    ?? (surfaceIds().length > 1 ? "split" : "single")
   ));
   const activeBar = createMemo(() => {
     const surfaceId = activeSurfaceId();
     return surfaceId ? state().bars[surfaceId]?.bar ?? null : null;
   });
-  const windowClass = createMemo(() => (
-    state().profile?.window_class
-    ?? windowClassForWidth(document.documentElement.clientWidth)
-  ));
 
   const ignoreEvent = () => {};
 
@@ -110,7 +116,7 @@ export default function CatalogApp() {
     <div
       class="app"
       data-window-class={windowClass()}
-      data-pane-layout={state().profile?.pane_layout ?? "single"}
+      data-pane-layout={paneLayout()}
       data-catalog-ready={ready()}
       data-catalog-screen={entry()?.code_id ?? ""}
       data-catalog-locale={entry()?.locale ?? ""}

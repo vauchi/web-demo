@@ -18,7 +18,10 @@ import {
   surfaceActivated,
 } from "./presentation/events";
 import { PresentationOverlay } from "./presentation/PresentationOverlay";
-import { visibleSurfaceIds } from "./presentation/selectors";
+import {
+  activeSurfaceId as selectActiveSurfaceId,
+  visibleSurfaceIds,
+} from "./presentation/selectors";
 import {
   applyPresentationCommands,
   emptyPresentationState,
@@ -66,12 +69,18 @@ export default function App() {
   let motionQuery: MediaQueryList | undefined;
   let overlayReturnFocusId: string | null = null;
 
-  const surfaceIds = createMemo(() => visibleSurfaceIds(
-    state().profile,
-    Object.keys(state().surfaces),
+  const windowClass = createMemo(() => (
+    state().profile?.window_class ?? "compact"
+  ));
+  const surfaceIds = createMemo(() => (
+    visibleSurfaceIds(state(), windowClass())
   ));
   const activeSurfaceId = createMemo(() => (
-    state().profile?.active_surface ?? surfaceIds()[0] ?? null
+    selectActiveSurfaceId(state(), windowClass())
+  ));
+  const paneLayout = createMemo(() => (
+    state().profile?.pane_layout
+    ?? (surfaceIds().length > 1 ? "split" : "single")
   ));
   const activeBar = createMemo(() => {
     const surfaceId = activeSurfaceId();
@@ -282,8 +291,8 @@ export default function App() {
   return (
     <div
       class="app"
-      data-window-class={state().profile?.window_class ?? "compact"}
-      data-pane-layout={state().profile?.pane_layout ?? "single"}
+      data-window-class={windowClass()}
+      data-pane-layout={paneLayout()}
       data-reduced-motion={reducedMotion()}
     >
       <header class="app-header">
