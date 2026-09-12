@@ -21,13 +21,17 @@ const action = (interactionId: string, label: string): ActionSpec => ({
   shortcut: null,
 });
 
-const surface = (surfaceId: string, revision: number): SurfaceSpec => ({
+const surface = (
+  surfaceId: string,
+  revision: number,
+  layout: SurfaceSpec["layout"] = "scroll",
+): SurfaceSpec => ({
   surface_id: surfaceId,
   revision,
   title: "Prepared by Core",
   subtitle: null,
   accessibility_label: "Prepared by Core",
-  layout: "scroll",
+  layout,
   tokens: {
     spacing_small: 4,
     spacing_medium: 8,
@@ -39,6 +43,28 @@ const surface = (surfaceId: string, revision: number): SurfaceSpec => ({
 });
 
 describe("presentation command cache", () => {
+  // A sub-screen batch replaces its parent pane first (the responsive
+  // companion) and the sub-screen last, without a presentation profile.
+  // The other shells track the last replaced surface as the active one;
+  // without it the web shell drew only the parent (main pipeline
+  // 2842790329, test:screen-catalog).
+  it("keeps the last replaced surface of a batch as the active one", () => {
+    const result = applyPresentationCommands(emptyPresentationState(), [
+      { ReplaceSurface: { surface: surface("contacts", 1, "pinned") } },
+      { ReplaceSurface: { surface: surface("contact_detail", 1) } },
+    ]);
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.state.activeSurface).toBe("contact_detail");
+    expect(Object.keys(result.state.surfaces))
+      .toEqual(["contacts", "contact_detail"]);
+  });
+
+  it("starts with no active surface", () => {
+    expect(emptyPresentationState().activeSurface).toBeNull();
+  });
+
   it("atomically applies Core's prepared surface, context bar, and profile", () => {
     const commands: PlatformCommand[] = [
       { ReplaceSurface: { surface: surface("main", 1) } },
