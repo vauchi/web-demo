@@ -24,6 +24,41 @@ const CATALOG_PATH = resolve(
 interface CatalogEntry {
   code_id: string;
   title: string;
+  commands: unknown[];
+}
+
+interface ChoiceNode {
+  binding_id: string;
+  options: unknown[];
+}
+
+interface SurfaceChoice {
+  surfaceId: string;
+  choice: ChoiceNode;
+}
+
+const SEGMENTED_CHOICE_MAX_OPTIONS = 3;
+
+function choiceNodesIn(value: unknown, found: ChoiceNode[] = []): ChoiceNode[] {
+  if (!value || typeof value !== "object") return found;
+  if ("Choice" in value) found.push((value as { Choice: ChoiceNode }).Choice);
+  for (const child of Object.values(value)) choiceNodesIn(child, found);
+  return found;
+}
+
+// Binding ids are minted per surface, so a batch that replaces a parent
+// pane and its detail pane can reuse one id; keep the surface alongside.
+function surfaceChoicesIn(commands: unknown[]): SurfaceChoice[] {
+  return commands.flatMap((command) => {
+    if (!command || typeof command !== "object" || !("ReplaceSurface" in command)) {
+      return [];
+    }
+    const { surface } = (command as {
+      ReplaceSurface: { surface: { surface_id: string; nodes: unknown[] } };
+    }).ReplaceSurface;
+    return choiceNodesIn(surface.nodes)
+      .map((choice) => ({ surfaceId: surface.surface_id, choice }));
+  });
 }
 
 const catalogJson = readFileSync(CATALOG_PATH, "utf8");
@@ -47,6 +82,26 @@ async function renderEntry(page: Page, entry: CatalogEntry): Promise<void> {
       .getByRole("heading", { level: 2, name: entry.title, exact: true })
       .first(),
   ).toBeVisible();
+}
+
+// Design-canvas control kinds: 2-3 options are adjoining segments, longer
+// lists stay a native select. Core rejects Choice(None), so neither control
+// offers an empty option.
+async function expectChoiceControls(page: Page, entry: CatalogEntry) {
+  for (const { surfaceId, choice } of surfaceChoicesIn(entry.commands)) {
+    const control = page
+      .locator(`[data-surface-id="${surfaceId}"]`)
+      .locator(`[data-presentation-id="${choice.binding_id}"]`);
+    const count = choice.options.length;
+    if (count >= 2 && count <= SEGMENTED_CHOICE_MAX_OPTIONS) {
+      await expect(control).toHaveRole("radiogroup");
+      await expect(control.getByRole("radio")).toHaveCount(count);
+      await expect(control.getByRole("radio", { checked: true })).toHaveCount(1);
+    } else {
+      await expect(control).toHaveRole("combobox");
+      await expect(control.locator("option")).toHaveCount(count);
+    }
+  }
 }
 
 async function capture(page: Page, entry: CatalogEntry, suffix: string) {
@@ -78,6 +133,7 @@ for (const entry of entries) {
     await page.setViewportSize({ width: 1280, height: 800 });
     await renderEntry(page, entry);
     await expect(page.locator(".app")).toHaveAttribute("data-window-class", "expanded");
+    await expectChoiceControls(page, entry);
     await capture(page, entry, "");
 
     await page.setViewportSize({ width: 390, height: 844 });
