@@ -13,6 +13,7 @@ import {
   inputSubmitted,
   valueChanged,
 } from "./events";
+import { ChoiceControl } from "./ChoiceControl";
 import { QrPresentation } from "./QrPresentation";
 
 interface Props {
@@ -134,27 +135,11 @@ export function PresentationNodeRenderer(props: Props) {
       </Match>
       <Match when={"Choice" in node ? node.Choice : undefined}>
         {(choice) => (
-          <label class="presentation-input">
-            <span>{choice().label}</span>
-            <select
-              value={choice().selected ?? ""}
-              disabled={!choice().enabled}
-              data-presentation-id={choice().binding_id}
-              aria-label={choice().accessibility.label}
-              onChange={(event) => props.onEvent(
-                valueChanged(
-                  props.surfaceId,
-                  choice().binding_id,
-                  { choice: event.currentTarget.value || null },
-                ),
-              )}
-            >
-              <option value="">—</option>
-              <For each={choice().options}>
-                {(option) => <option value={option.id}>{option.label}</option>}
-              </For>
-            </select>
-          </label>
+          <ChoiceControl
+            choice={choice()}
+            surfaceId={props.surfaceId}
+            onEvent={props.onEvent}
+          />
         )}
       </Match>
       <Match when={"Group" in node ? node.Group : undefined}>

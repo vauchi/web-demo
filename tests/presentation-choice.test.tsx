@@ -101,22 +101,23 @@ describe("Choice control kind", () => {
 });
 
 describe("Choice events", () => {
-  it("emits the chosen option when a segment is clicked, and nothing when re-clicked", () => {
+  // The shell is humble: a segment only reflects Core's `selected`, so
+  // re-activating the option Core already shows is not a change.
+  it("emits the chosen option when a segment is clicked, never the shown one", () => {
     const { root, events } = mount(choiceNode(2, "option-1"));
-    const [first, second] = radios(root);
+    const [shown, other] = radios(root);
 
-    second.click();
+    other.click();
     expect(events).toEqual([choiceEvent("option-2")]);
 
-    first.click();
-    expect(events).toHaveLength(2);
-    expect(events[1]).toEqual(choiceEvent("option-1"));
+    shown.click();
+    expect(events).toHaveLength(1);
 
-    first.click();
-    expect(events).toHaveLength(2);
+    other.click();
+    expect(events).toEqual([choiceEvent("option-2"), choiceEvent("option-2")]);
   });
 
-  it("moves the selection with arrow keys, wrapping at both ends", () => {
+  it("moves focus with arrow keys, wrapping at both ends, and emits the focused option", () => {
     const { root, events } = mount(choiceNode(3, "option-1"));
     const press = (key: string) => {
       const focused = document.activeElement as HTMLElement;
@@ -125,17 +126,24 @@ describe("Choice events", () => {
 
     radios(root)[0].focus();
     press("ArrowRight");
-    expect(events.at(-1)).toEqual(choiceEvent("option-2"));
+    expect(events).toEqual([choiceEvent("option-2")]);
     expect(document.activeElement?.textContent).toBe("OPTION-2");
 
     press("ArrowLeft");
-    press("ArrowLeft");
+    expect(events).toHaveLength(1);
+    expect(document.activeElement?.textContent).toBe("OPTION-1");
+
+    press("ArrowUp");
     expect(events.at(-1)).toEqual(choiceEvent("option-3"));
     expect(document.activeElement?.textContent).toBe("OPTION-3");
 
     press("ArrowDown");
-    expect(events.at(-1)).toEqual(choiceEvent("option-1"));
-    expect(events).toHaveLength(4);
+    expect(events).toHaveLength(2);
+    expect(document.activeElement?.textContent).toBe("OPTION-1");
+
+    press("End");
+    expect(events).toHaveLength(3);
+    expect(document.activeElement?.textContent).toBe("OPTION-3");
   });
 
   it("emits the chosen option from the select", () => {
