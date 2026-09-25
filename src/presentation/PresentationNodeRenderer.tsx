@@ -225,6 +225,14 @@ export function PresentationNodeRenderer(props: Props) {
       </Match>
       <Match when={"Image" in node ? node.Image : undefined}>
         {(image) => {
+          const boxClass = () => {
+            const sized = image().size != null ? " presentation-image-sized" : "";
+            return `presentation-image presentation-image-${image().shape}${sized}`;
+          };
+          const boxStyle = () => {
+            const size = image().size;
+            return size == null ? undefined : { "--presentation-image-size": `${size}px` };
+          };
           const content = () => (
             <Show
               when={bytesToImage(image().data)}
@@ -243,14 +251,15 @@ export function PresentationNodeRenderer(props: Props) {
             <Show
               when={image().activation}
               fallback={
-                <div class={`presentation-image presentation-image-${image().shape}`}>
+                <div class={boxClass()} style={boxStyle()}>
                   {content()}
                 </div>
               }
             >
               {(activation) => (
                 <button
-                  class={`presentation-image presentation-image-${image().shape}`}
+                  class={boxClass()}
+                  style={boxStyle()}
                   data-presentation-id={activation().interaction_id}
                   aria-label={activation().accessibility_label}
                   disabled={!activation().enabled}

@@ -92,7 +92,7 @@ export type PresentationNode =
   | { Choice: { binding_id: BindingId; label: string; selected: string | null; options: ChoiceOption[]; enabled: boolean; accessibility: AccessibilitySpec } }
   | { Group: { id: BindingId | null; label: string | null; axis: "horizontal" | "vertical"; children: PresentationNode[]; accessibility: AccessibilitySpec } }
   | { List: { id: BindingId; label: string | null; rows: PresentationRow[]; searchable: boolean; paging: PresentationPaging | null; accessibility: AccessibilitySpec } }
-  | { Image: { id: BindingId | null; data: number[] | null; fallback_text: string | null; shape: "natural" | "circle"; brightness: number; activation: ActionSpec | null; accessibility: AccessibilitySpec } }
+  | { Image: { id: BindingId | null; data: number[] | null; fallback_text: string | null; shape: "natural" | "circle"; size?: number; brightness: number; activation: ActionSpec | null; accessibility: AccessibilitySpec } }
   | { Status: { id: BindingId | null; title: string; detail: string | null; icon_token: string | null; badge: string | null; tone: "neutral" | "accent" | "success" | "warning" | "error"; activation: ActionSpec | null; accessibility: AccessibilitySpec } }
   | { Qr: { id: BindingId; payloads: string[]; purpose: "display" | "capture"; label: string | null; accessibility: AccessibilitySpec } }
   | { Confirmation: { id: BindingId; warning: string; confirm: ActionSpec; cancel: ActionSpec; accessibility: AccessibilitySpec } }

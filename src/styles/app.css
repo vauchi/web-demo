@@ -321,6 +321,20 @@ summary:focus-visible {
   border-radius: 50%;
 }
 
+/* Core-supplied square, logical units (absent = shell keeps sizing, e.g. avatars). */
+.presentation-image.presentation-image-sized {
+  width: min(var(--presentation-image-size), 100%);
+  min-width: 0;
+  aspect-ratio: 1 / 1;
+  margin-inline: auto;
+}
+
+.presentation-image.presentation-image-sized img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
 .presentation-status {
   display: flex;
   align-items: center;
