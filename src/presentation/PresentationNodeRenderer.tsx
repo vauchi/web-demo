@@ -234,7 +234,7 @@ export function PresentationNodeRenderer(props: Props) {
                 <img
                   src={source()}
                   alt={image().accessibility.label}
-                  style={{ filter: `brightness(${image().brightness})` }}
+                  style={{ filter: `brightness(${1 + image().brightness})` }}
                 />
               )}
             </Show>
