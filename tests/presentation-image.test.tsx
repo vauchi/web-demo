@@ -10,13 +10,17 @@ import type { PresentationNode } from "../src/types/presentation";
 
 const PNG_SIGNATURE = [137, 80, 78, 71, 13, 10, 26, 10];
 
-function imageNode(brightness: number): PresentationNode {
+function imageNode(
+  brightness: number,
+  overrides: { size?: number; data?: number[] | null; fallback_text?: string | null } = {},
+): PresentationNode {
   return {
     Image: {
       id: null,
-      data: PNG_SIGNATURE,
-      fallback_text: "Vauchi",
+      data: overrides.data === undefined ? PNG_SIGNATURE : overrides.data,
+      fallback_text: overrides.fallback_text ?? "Vauchi",
       shape: "natural",
+      size: overrides.size,
       brightness,
       activation: null,
       accessibility: { label: "Vauchi", description: null },
@@ -26,14 +30,20 @@ function imageNode(brightness: number): PresentationNode {
 
 let dispose: (() => void) | null = null;
 
-function renderedFilter(node: PresentationNode): string {
+function mountImage(node: PresentationNode): HTMLElement {
   const root = document.createElement("div");
   document.body.appendChild(root);
   dispose = render(
     () => <PresentationNodeRenderer node={node} surfaceId="onboarding" onEvent={() => {}} />,
     root,
   );
-  const img = root.querySelector("img");
+  const box = root.querySelector(".presentation-image");
+  if (!box) throw new Error("the image node rendered no .presentation-image container");
+  return box as HTMLElement;
+}
+
+function renderedFilter(node: PresentationNode): string {
+  const img = mountImage(node).querySelector("img");
   if (!img) throw new Error("the image node rendered no <img>");
   return img.style.filter;
 }
@@ -54,5 +64,30 @@ describe("image brightness", () => {
 
   it("applies Core's offset around that neutral point", () => {
     expect(renderedFilter(imageNode(-0.2))).toBe("brightness(0.8)");
+  });
+});
+
+// Core omits `size` entirely for every avatar and sends it only for the
+// onboarding mark (core/vauchi-app/fixtures/presentation_contract_v1.json).
+// Absent must reproduce today's unsized behaviour exactly.
+describe("image size", () => {
+  it("leaves an unsized picture without a sizing class or custom property", () => {
+    const box = mountImage(imageNode(0));
+    expect(box.classList.contains("presentation-image-sized")).toBe(false);
+    expect(box.style.getPropertyValue("--presentation-image-size")).toBe("");
+  });
+
+  it("sizes a picture into a square of the requested logical units", () => {
+    const box = mountImage(imageNode(0, { size: 88 }));
+    expect(box.classList.contains("presentation-image-sized")).toBe(true);
+    expect(box.style.getPropertyValue("--presentation-image-size")).toBe("88px");
+  });
+
+  it("sizes the fallback into the same square when there is no image data", () => {
+    const box = mountImage(imageNode(0, { size: 88, data: null, fallback_text: "Vauchi" }));
+    expect(box.querySelector("img")).toBeNull();
+    expect(box.textContent).toBe("Vauchi");
+    expect(box.classList.contains("presentation-image-sized")).toBe(true);
+    expect(box.style.getPropertyValue("--presentation-image-size")).toBe("88px");
   });
 });
