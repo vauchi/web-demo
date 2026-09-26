@@ -486,6 +486,15 @@ lint:humble:
           - ".gitlab-ci.yml"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
+# Exact-zero release gate (ADR-066). web-demo has no tag-triggered
+# publish/deploy job today (the `pages` job — extends .badges-pages —
+# only deploys on $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH, never on a
+# release tag), so there is nothing here for this job to block yet.
+# Instantiated for consistency with cli/tui and so the gate is already
+# wired in if a tag-triggered publish job is ever added.
+release:ratchet-zero:
+  extends: .release-ratchet-zero
+
 secret_detection:
   stage: security
   tags: !reference [.security-gate-secret-tags, tags]
