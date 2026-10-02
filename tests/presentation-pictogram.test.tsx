@@ -115,3 +115,45 @@ describe("pictogram icon tokens", () => {
     expect(row.querySelector("svg")).toBeNull();
   });
 });
+
+function statusNode(iconToken: string | null): PresentationNode {
+  return {
+    Status: {
+      id: null,
+      title: "Hover",
+      detail: "Hold your phone over theirs",
+      icon_token: iconToken,
+      badge: null,
+      tone: "neutral",
+      activation: null,
+      accessibility: { label: "Hover", description: null },
+    },
+  };
+}
+
+function mountStatus(node: PresentationNode): HTMLElement {
+  const root = document.createElement("div");
+  document.body.appendChild(root);
+  dispose = render(
+    () => <PresentationNodeRenderer node={node} surfaceId="exchange" onEvent={() => {}} />,
+    root,
+  );
+  const status = root.querySelector(".presentation-status");
+  if (!status) throw new Error("the status node rendered no .presentation-status");
+  return status as HTMLElement;
+}
+
+describe("pictogram icon tokens on a status", () => {
+  it("draws the status's pictogram inline in the text colour", () => {
+    const svg = mountStatus(statusNode("pictogram.exchange.hover")).querySelector("svg");
+    if (!svg) throw new Error("the status rendered no inline <svg>");
+    expect(svg.getAttribute("stroke")).toBe("currentColor");
+    expect(svg.querySelectorAll("path")).toHaveLength(15);
+  });
+
+  it("renders a status with a non-pictogram token as before", () => {
+    const status = mountStatus(statusNode("person.2"));
+    expect(status.querySelector("svg")).toBeNull();
+    expect(status.textContent).toBe("HoverHold your phone over theirs");
+  });
+});
