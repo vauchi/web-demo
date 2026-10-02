@@ -279,6 +279,9 @@ export function PresentationNodeRenderer(props: Props) {
       <Match when={"Status" in node ? node.Status : undefined}>
         {(status) => (
           <article class={`presentation-status presentation-tone-${status().tone}`}>
+            <Show when={pictogramMarkup(status().icon_token)}>
+              {(markup) => <span class="presentation-pictogram" innerHTML={markup()} />}
+            </Show>
             <div>
               <strong>{status().title}</strong>
               <Show when={status().detail}>{(detail) => <span>{detail()}</span>}</Show>
@@ -385,7 +388,7 @@ function RowContent(props: { row: {
               </Show>
             }
           >
-            {(markup) => <span class="presentation-row-pictogram" innerHTML={markup()} />}
+            {(markup) => <span class="presentation-pictogram" innerHTML={markup()} />}
           </Show>
         }
       >
