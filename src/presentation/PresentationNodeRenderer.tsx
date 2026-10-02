@@ -14,6 +14,7 @@ import {
   valueChanged,
 } from "./events";
 import { ChoiceControl } from "./ChoiceControl";
+import { pictogramMarkup } from "./pictograms";
 import { QrPresentation } from "./QrPresentation";
 
 interface Props {
@@ -369,14 +370,22 @@ function RowContent(props: { row: {
   detail: string | null;
   fallback_text: string | null;
   image_data: number[] | null;
+  icon_token: string | null;
 } }) {
   return (
     <>
       <Show
         when={bytesToImage(props.row.image_data)}
         fallback={
-          <Show when={props.row.fallback_text}>
-            {(fallback) => <span class="presentation-row-fallback">{fallback()}</span>}
+          <Show
+            when={pictogramMarkup(props.row.icon_token)}
+            fallback={
+              <Show when={props.row.fallback_text}>
+                {(fallback) => <span class="presentation-row-fallback">{fallback()}</span>}
+              </Show>
+            }
+          >
+            {(markup) => <span class="presentation-row-pictogram" innerHTML={markup()} />}
           </Show>
         }
       >
