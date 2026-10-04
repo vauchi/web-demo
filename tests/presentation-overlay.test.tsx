@@ -55,6 +55,19 @@ describe("an information overlay (vauchi/private#479)", () => {
     expect(mounted.dismissed).toBe(1);
   });
 
+  it("names its Close with Core's label, in the person's language", () => {
+    const mounted = mount({
+      kind: "information",
+      title: "Kontakte",
+      items: [],
+      body: "Text.",
+      close_label: "Schließen",
+    });
+
+    const close = mounted.root.querySelector<HTMLButtonElement>(".presentation-overlay-close");
+    expect(close?.getAttribute("aria-label")).toBe("Schließen");
+  });
+
   it("still lists the items of an action menu without a body", () => {
     const mounted = mount({
       kind: "action_menu",
