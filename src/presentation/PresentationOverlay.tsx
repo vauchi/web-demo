@@ -55,7 +55,7 @@ export function PresentationOverlay(props: Props) {
           <button
             type="button"
             class="presentation-overlay-close"
-            aria-label="Close"
+            aria-label={props.overlay.close_label ?? "Close"}
             onClick={props.onDismiss}
           >
             ×

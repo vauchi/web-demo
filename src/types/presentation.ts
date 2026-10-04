@@ -40,6 +40,8 @@ export interface OverlaySpec {
   items: ActionSpec[];
   /** Text to read when the kind is `information`; absent from an older Core. */
   body?: string | null;
+  /** Core's label for the way out; absent from an older Core. */
+  close_label?: string | null;
 }
 
 export type InputMode = "touch" | "pointer" | "keyboard";
