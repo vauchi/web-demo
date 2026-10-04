@@ -611,6 +611,21 @@ summary:focus-visible {
   animation: action-menu-reveal 180ms ease-out;
 }
 
+.overlay-information {
+  align-items: center;
+  justify-content: center;
+}
+
+.overlay-information .presentation-overlay-panel {
+  width: min(92vw, 30rem);
+  animation: action-menu-reveal 180ms ease-out;
+}
+
+.presentation-overlay-body {
+  margin: 0 0 var(--spacing-sm);
+  line-height: 1.5;
+}
+
 .presentation-overlay-backdrop.reduced-motion .presentation-overlay-panel {
   animation: none;
 }

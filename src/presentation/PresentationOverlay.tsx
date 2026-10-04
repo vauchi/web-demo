@@ -16,6 +16,17 @@ interface Props {
   onDismiss: () => void;
 }
 
+const fallbackLabel = (kind: OverlaySpec["kind"]): string => {
+  switch (kind) {
+    case "navigation":
+      return "Navigation";
+    case "information":
+      return "Information";
+    default:
+      return "Actions";
+  }
+};
+
 export function PresentationOverlay(props: Props) {
   let panel: HTMLElement | undefined;
 
@@ -35,9 +46,7 @@ export function PresentationOverlay(props: Props) {
         class="presentation-overlay-panel"
         role="dialog"
         aria-modal="true"
-        aria-label={props.overlay.title ?? (
-          props.overlay.kind === "navigation" ? "Navigation" : "Actions"
-        )}
+        aria-label={props.overlay.title ?? fallbackLabel(props.overlay.kind)}
       >
         <header>
           <Show when={props.overlay.title}>
@@ -52,6 +61,9 @@ export function PresentationOverlay(props: Props) {
             ×
           </button>
         </header>
+        <Show when={props.overlay.body}>
+          {(body) => <p class="presentation-overlay-body">{body()}</p>}
+        </Show>
         <div class="presentation-overlay-items">
           <For each={props.overlay.items}>
             {(action) => (

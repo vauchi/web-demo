@@ -91,6 +91,23 @@ export function ContextCommandBar(props: Props) {
           )}
         </Show>
       </div>
+      <div class="context-command-slot">
+        <Show when={props.bar?.info}>
+          {(action) => (
+            <button
+              type="button"
+              class="context-command context-command-info"
+              disabled={!action().enabled}
+              data-presentation-id={action().interaction_id}
+              aria-label={action().accessibility_label}
+              onClick={() => activate(action())}
+            >
+              <span aria-hidden="true">ⓘ</span>
+              <span>{action().label}</span>
+            </button>
+          )}
+        </Show>
+      </div>
     </nav>
   );
 }

@@ -28,14 +28,18 @@ export interface ContextBar {
   navigation: ActionSpec | null;
   primary: ActionSpec | null;
   secondary: ActionSpec | null;
+  /** Explains the surface (vauchi/private#479); absent from an older Core. */
+  info?: ActionSpec | null;
 }
 
-export type OverlayKind = "navigation" | "action_menu";
+export type OverlayKind = "navigation" | "action_menu" | "information";
 
 export interface OverlaySpec {
   kind: OverlayKind;
   title: string | null;
   items: ActionSpec[];
+  /** Text to read when the kind is `information`; absent from an older Core. */
+  body?: string | null;
 }
 
 export type InputMode = "touch" | "pointer" | "keyboard";
