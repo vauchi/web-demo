@@ -193,6 +193,23 @@ export function PresentationNodeRenderer(props: Props) {
                       </button>
                     )}
                   </Show>
+                  <Show when={row.info}>
+                    {(info) => (
+                      <button
+                        type="button"
+                        class="presentation-row-info"
+                        disabled={!info().enabled}
+                        data-presentation-id={info().interaction_id}
+                        aria-label={info().accessibility_label}
+                        onClick={() => props.onEvent(actionActivated(
+                          props.surfaceId,
+                          info().interaction_id,
+                        ))}
+                      >
+                        <span aria-hidden="true">ⓘ</span>
+                      </button>
+                    )}
+                  </Show>
                   <For each={row.controls}>
                     {(control) => (
                       <PresentationNodeRenderer

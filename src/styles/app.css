@@ -621,6 +621,16 @@ summary:focus-visible {
   animation: action-menu-reveal 180ms ease-out;
 }
 
+.presentation-row-info {
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  border: none;
+  background: none;
+  color: var(--color-text-secondary);
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
 .presentation-overlay-body {
   margin: 0 0 var(--spacing-sm);
   line-height: 1.5;

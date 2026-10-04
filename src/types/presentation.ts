@@ -89,6 +89,8 @@ export interface PresentationRow {
   secondary_actions: ActionSpec[];
   controls: PresentationNode[];
   accessibility: AccessibilitySpec;
+  /** Explains this item (vauchi/private#479); absent from an older Core. */
+  info?: ActionSpec | null;
 }
 
 export type PresentationNode =
