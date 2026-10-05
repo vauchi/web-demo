@@ -70,6 +70,19 @@ export interface ChoiceOption {
   label: string;
 }
 
+/** Where a display code sits in its node's square: its side and the
+ * offset of its top-left corner, in permille (0-1000) of the square's
+ * side. Absent means the code fills the square (vauchi/private#450). */
+export interface QrPlacement {
+  size: number;
+  x: number;
+  y: number;
+}
+
+/** How much of a display code is redundancy. Absent or unrecognized
+ * leaves it to the shell, which draws at medium. */
+export type PresentationQrErrorCorrection = "low" | "medium";
+
 export interface PresentationPaging {
   total_count: number;
   offset: number;
@@ -102,7 +115,7 @@ export type PresentationNode =
   | { List: { id: BindingId; label: string | null; rows: PresentationRow[]; searchable: boolean; paging: PresentationPaging | null; accessibility: AccessibilitySpec } }
   | { Image: { id: BindingId | null; data: number[] | null; fallback_text: string | null; shape: "natural" | "circle"; size?: number; brightness: number; activation: ActionSpec | null; accessibility: AccessibilitySpec } }
   | { Status: { id: BindingId | null; title: string; detail: string | null; icon_token: string | null; badge: string | null; tone: "neutral" | "accent" | "success" | "warning" | "error"; activation: ActionSpec | null; accessibility: AccessibilitySpec } }
-  | { Qr: { id: BindingId; payloads: string[]; purpose: "display" | "capture"; label: string | null; accessibility: AccessibilitySpec } }
+  | { Qr: { id: BindingId; payloads: string[]; purpose: "display" | "capture"; label: string | null; placement?: QrPlacement | null; error_correction?: PresentationQrErrorCorrection | null; accessibility: AccessibilitySpec } }
   | { Confirmation: { id: BindingId; warning: string; confirm: ActionSpec; cancel: ActionSpec; accessibility: AccessibilitySpec } }
   | { Slider: { binding_id: BindingId; label: string; value: number; minimum: number; maximum: number; step: number | null; minimum_icon: string | null; maximum_icon: string | null; accessibility: AccessibilitySpec } }
   | { Progress: { label: string | null; value: number | null; accessibility: AccessibilitySpec } }
