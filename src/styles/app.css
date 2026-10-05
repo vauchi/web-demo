@@ -397,12 +397,22 @@ summary:focus-visible {
   text-align: center;
 }
 
-.presentation-qr img {
-  display: block;
+/* The node's square: light background behind the drawn code, which a
+   placement may size and offset to less than the full square
+   (vauchi/private#450). */
+.presentation-qr-frame {
+  position: relative;
   max-width: 100%;
-  height: auto;
   margin: 0 auto;
+  overflow: hidden;
+  background: #ffffff;
   border-radius: var(--surface-radius);
+}
+
+.presentation-qr-code {
+  display: block;
+  position: absolute;
+  max-width: none;
 }
 
 .presentation-qr-placeholder {
