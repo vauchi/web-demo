@@ -9,7 +9,6 @@
 // `?screen=` picks an entry by code_id or index.
 
 import { createMemo, createSignal, For, onMount, Show } from "solid-js";
-import { ContextCommandBar } from "./presentation/ContextCommandBar";
 import {
   parseScreenCatalog,
   reduceCatalogEntry,
@@ -84,11 +83,6 @@ export default function CatalogApp() {
     state().profile?.pane_layout
     ?? (surfaceIds().length > 1 ? "split" : "single")
   ));
-  const activeBar = createMemo(() => {
-    const surfaceId = activeSurfaceId();
-    return surfaceId ? state().bars[surfaceId]?.bar ?? null : null;
-  });
-
   const ignoreEvent = () => {};
 
   onMount(async () => {
@@ -136,6 +130,7 @@ export default function CatalogApp() {
                 {(surface) => (
                   <PresentationSurface
                     surface={surface()}
+                    bar={state().bars[surfaceId]?.bar ?? null}
                     active={activeSurfaceId() === surfaceId}
                     onEvent={ignoreEvent}
                   />
@@ -145,15 +140,6 @@ export default function CatalogApp() {
           </For>
         </Show>
       </main>
-      <Show when={activeSurfaceId()}>
-        {(surfaceId) => (
-          <ContextCommandBar
-            surfaceId={surfaceId()}
-            bar={activeBar()}
-            onEvent={ignoreEvent}
-          />
-        )}
-      </Show>
     </div>
   );
 }

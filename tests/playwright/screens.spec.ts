@@ -39,11 +39,12 @@ async function activeTitle(page: Page): Promise<string> {
   return (await heading.textContent())?.trim() ?? "";
 }
 
-// The primary slot is shell markup (ContextCommandBar.tsx), not a Core
-// class; its label changes per step, so the slot is the stable handle.
+// The primary slot is shell markup (PresentationSurface.tsx), not a
+// Core class; its label changes per step, so the slot is the stable
+// handle. It lives inside the active surface's own content now, not a
+// separate bar (vauchi/private#479, owner decision 2026-10-06).
 const primaryAction = (page: Page): Locator =>
-  page.getByRole("navigation", { name: "Contextual commands" })
-    .locator(".context-command-primary");
+  page.locator("[data-surface-id][data-active='true'] .surface-primary-button");
 
 async function openNavigation(page: Page): Promise<Locator> {
   await page.getByRole("button", { name: "Navigate" }).click();

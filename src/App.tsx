@@ -9,7 +9,6 @@ import {
   onMount,
   Show,
 } from "solid-js";
-import { ContextCommandBar } from "./presentation/ContextCommandBar";
 import {
   actionActivated,
   backRequested,
@@ -319,6 +318,7 @@ export default function App() {
                   {(surface) => (
                     <PresentationSurface
                       surface={surface()}
+                      bar={state().bars[surfaceId]?.bar ?? null}
                       active={activeSurfaceId() === surfaceId}
                       onEvent={sendInteractive}
                     />
@@ -329,15 +329,6 @@ export default function App() {
           </Show>
         </Show>
       </main>
-      <Show when={activeSurfaceId()}>
-        {(surfaceId) => (
-          <ContextCommandBar
-            surfaceId={surfaceId()}
-            bar={activeBar()}
-            onEvent={sendInteractive}
-          />
-        )}
-      </Show>
       <Show when={state().overlay}>
         {(overlay) => (
           <PresentationOverlay

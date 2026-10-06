@@ -13,7 +13,10 @@ test("Core drives responsive chrome and distinct reduced-motion overlays", async
 
   const app = page.locator(".app");
   await expect(app).toHaveAttribute("data-window-class", "compact");
-  await expect(page.locator(".context-command-bar")).toBeVisible();
+  await expect(page.locator(".context-command-bar")).toHaveCount(0);
+  await expect(
+    page.locator("[data-surface-id][data-active='true'] .surface-title-row"),
+  ).toBeVisible();
   await expect(page.locator(".actions")).toHaveCount(0);
   await expect(page.locator(".workflow-tabs")).toHaveCount(0);
 
@@ -29,7 +32,9 @@ test("Core drives responsive chrome and distinct reduced-motion overlays", async
   }))
     .toBeVisible();
 
-  const secondary = page.locator(".context-command-secondary");
+  const secondary = page.locator(
+    "[data-surface-id][data-active='true'] .surface-title-secondary",
+  );
   await expect(secondary).toBeVisible();
   await secondary.click();
   const actions = page.locator(".overlay-action_menu");
