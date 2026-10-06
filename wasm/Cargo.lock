@@ -1250,7 +1250,7 @@ checksum = "dc897dd8d9e8bd1ed8cdad82b5966c3e0ecae09fb1907d58efaa013543185d0a"
 [[package]]
 name = "rqrr"
 version = "0.11.0"
-source = "git+https://gitlab.com/vauchi/core.git?tag=v0.74.0#ee140224efd4fc6a8b40d25ce6d52cc5845bd47b"
+source = "git+https://gitlab.com/vauchi/core.git?tag=v0.75.0#5ad0868260881390ccb40c6384669be107c06f5f"
 dependencies = [
  "g2p",
  "image",
@@ -1705,8 +1705,8 @@ dependencies = [
 
 [[package]]
 name = "vauchi-app"
-version = "0.74.0"
-source = "git+https://gitlab.com/vauchi/core.git?tag=v0.74.0#ee140224efd4fc6a8b40d25ce6d52cc5845bd47b"
+version = "0.75.0"
+source = "git+https://gitlab.com/vauchi/core.git?tag=v0.75.0#5ad0868260881390ccb40c6384669be107c06f5f"
 dependencies = [
  "base64",
  "hex",
@@ -1722,8 +1722,8 @@ dependencies = [
 
 [[package]]
 name = "vauchi-core"
-version = "0.74.0"
-source = "git+https://gitlab.com/vauchi/core.git?tag=v0.74.0#ee140224efd4fc6a8b40d25ce6d52cc5845bd47b"
+version = "0.75.0"
+source = "git+https://gitlab.com/vauchi/core.git?tag=v0.75.0#5ad0868260881390ccb40c6384669be107c06f5f"
 dependencies = [
  "argon2",
  "base64",
@@ -1759,8 +1759,8 @@ dependencies = [
 
 [[package]]
 name = "vauchi-protocol"
-version = "0.74.0"
-source = "git+https://gitlab.com/vauchi/core.git?tag=v0.74.0#ee140224efd4fc6a8b40d25ce6d52cc5845bd47b"
+version = "0.75.0"
+source = "git+https://gitlab.com/vauchi/core.git?tag=v0.75.0#5ad0868260881390ccb40c6384669be107c06f5f"
 dependencies = [
  "serde",
  "serde_json",
