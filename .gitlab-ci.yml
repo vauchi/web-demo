@@ -353,12 +353,10 @@ test:screen-catalog:
 # silently passing. CI is the single source of truth for baselines —
 # generate them via test:vrt:record, never with `--update-snapshots`
 # inline (which silently regenerates every run and hides regressions).
-# Audited 2026-04-22 T2.1.
-#
-# allow_failure: true retained for now because the existing committed
-# baseline is `darwin` only — first record run on linux CI will land
-# the linux baselines; flip to blocking after that completes (mirror
-# linux-qt/linux-gtk migration pattern).
+# Audited 2026-04-22 T2.1. Blocking: the linux baseline exists. The one
+# recorded 2026-07-31 showed the locale keys ("Missing: onboarding.…")
+# instead of the copy, so every run failed against a broken picture and
+# allow_failure hid it for two months (private#559).
 test:vrt:
   extends: .playwright-base
   variables:
@@ -387,7 +385,6 @@ test:vrt:
     paths:
       - tests/playwright/vrt.spec.ts-snapshots/
       - test-results/
-  allow_failure: true
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
