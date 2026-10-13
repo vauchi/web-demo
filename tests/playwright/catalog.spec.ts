@@ -53,11 +53,11 @@ interface CatalogProfile {
   active_surface: string;
 }
 
-// A sub-screen batch also replaces its parent pane, and the profile decides
-// which panes are drawn: a single-pane layout shows only the active one, so
-// the parent's controls are not on the page (vauchi/private#424). Without a
-// profile every replaced surface counts, as before.
-function visibleSurfaceIdsIn(commands: unknown[]): Set<string> | null {
+// A sub-screen batch also replaces its parent pane, and only the drawn panes'
+// controls are on the page (vauchi/private#424): with a profile, the panes it
+// names; without one, the last surface the batch replaced, which is what
+// web-demo and every other shell show (vauchi/private#420).
+function visibleSurfaceIdsIn(commands: unknown[]): Set<string> {
   const profile = commands
     .flatMap((command) => (
       command && typeof command === "object" && "SetPresentationProfile" in command
@@ -66,7 +66,15 @@ function visibleSurfaceIdsIn(commands: unknown[]): Set<string> | null {
         : []
     ))
     .at(-1);
-  if (!profile) return null;
+  if (!profile) {
+    const replaced = commands.flatMap((command) => (
+      command && typeof command === "object" && "ReplaceSurface" in command
+        ? [(command as { ReplaceSurface: { surface: { surface_id: string } } })
+          .ReplaceSurface.surface.surface_id]
+        : []
+    ));
+    return new Set(replaced.slice(-1));
+  }
   if (profile.pane_layout === "single") return new Set([profile.active_surface]);
   return new Set([
     profile.primary_surface,
@@ -85,7 +93,7 @@ function surfaceChoicesIn(commands: unknown[]): SurfaceChoice[] {
     const { surface } = (command as {
       ReplaceSurface: { surface: { surface_id: string; nodes: unknown[] } };
     }).ReplaceSurface;
-    if (visible && !visible.has(surface.surface_id)) return [];
+    if (!visible.has(surface.surface_id)) return [];
     return choiceNodesIn(surface.nodes)
       .map((choice) => ({ surfaceId: surface.surface_id, choice }));
   });
