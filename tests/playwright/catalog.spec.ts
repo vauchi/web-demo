@@ -46,9 +46,38 @@ function choiceNodesIn(value: unknown, found: ChoiceNode[] = []): ChoiceNode[] {
   return found;
 }
 
+interface CatalogProfile {
+  pane_layout: string;
+  primary_surface: string;
+  detail_surface: string | null;
+  active_surface: string;
+}
+
+// A sub-screen batch also replaces its parent pane, and the profile decides
+// which panes are drawn: a single-pane layout shows only the active one, so
+// the parent's controls are not on the page (vauchi/private#424). Without a
+// profile every replaced surface counts, as before.
+function visibleSurfaceIdsIn(commands: unknown[]): Set<string> | null {
+  const profile = commands
+    .flatMap((command) => (
+      command && typeof command === "object" && "SetPresentationProfile" in command
+        ? [(command as { SetPresentationProfile: { profile: CatalogProfile } })
+          .SetPresentationProfile.profile]
+        : []
+    ))
+    .at(-1);
+  if (!profile) return null;
+  if (profile.pane_layout === "single") return new Set([profile.active_surface]);
+  return new Set([
+    profile.primary_surface,
+    ...(profile.detail_surface ? [profile.detail_surface] : []),
+  ]);
+}
+
 // Binding ids are minted per surface, so a batch that replaces a parent
 // pane and its detail pane can reuse one id; keep the surface alongside.
 function surfaceChoicesIn(commands: unknown[]): SurfaceChoice[] {
+  const visible = visibleSurfaceIdsIn(commands);
   return commands.flatMap((command) => {
     if (!command || typeof command !== "object" || !("ReplaceSurface" in command)) {
       return [];
@@ -56,6 +85,7 @@ function surfaceChoicesIn(commands: unknown[]): SurfaceChoice[] {
     const { surface } = (command as {
       ReplaceSurface: { surface: { surface_id: string; nodes: unknown[] } };
     }).ReplaceSurface;
+    if (visible && !visible.has(surface.surface_id)) return [];
     return choiceNodesIn(surface.nodes)
       .map((choice) => ({ surfaceId: surface.surface_id, choice }));
   });
