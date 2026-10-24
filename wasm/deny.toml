@@ -19,6 +19,7 @@ ignore = []
 version = 2
 allow = [
     "GPL-3.0-or-later",
+    "AGPL-3.0-or-later",  # vauchi-core (#801)
     "MIT",
     "Apache-2.0",
     "BSD-2-Clause",
