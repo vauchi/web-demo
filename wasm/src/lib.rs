@@ -82,6 +82,7 @@ mod tests {
     struct PresentationContractFixture {
         schema_version: u64,
         initial_commands: Vec<Command>,
+        effect_commands: Vec<Command>,
         steps: Vec<PresentationContractStep>,
         expected_state: ExpectedPresentationState,
     }
@@ -115,6 +116,7 @@ mod tests {
             "fixture schema changed; re-verify the WASM decoder contract"
         );
         assert!(!fixture.initial_commands.is_empty());
+        assert!(!fixture.effect_commands.is_empty());
         assert!(!fixture.steps.is_empty());
         assert!(fixture.steps.iter().all(|step| !step.commands.is_empty()));
         assert_eq!(
