@@ -85,6 +85,10 @@ mod tests {
         effect_commands: Vec<Command>,
         steps: Vec<PresentationContractStep>,
         expected_state: ExpectedPresentationState,
+        /// Core's opt-in correlated file picker; the WASM demo picks no
+        /// files and does not opt in (vauchi/private#764).
+        #[serde(rename = "file_picker_contract")]
+        _file_picker_contract: serde::de::IgnoredAny,
     }
 
     #[derive(Deserialize)]
