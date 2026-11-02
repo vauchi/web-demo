@@ -1250,7 +1250,7 @@ checksum = "dc897dd8d9e8bd1ed8cdad82b5966c3e0ecae09fb1907d58efaa013543185d0a"
 [[package]]
 name = "rqrr"
 version = "0.11.0"
-source = "git+https://gitlab.com/vauchi/core.git?tag=v0.95.0#dd78641a2f19e1640d5af8c6597f31e84bf2401e"
+source = "git+https://gitlab.com/vauchi/core.git?tag=v0.96.1#fea897f8f1483aa857fcb9d2cd9ee91ba8db7e5d"
 dependencies = [
  "g2p",
  "image",
@@ -1705,8 +1705,8 @@ dependencies = [
 
 [[package]]
 name = "vauchi-app"
-version = "0.95.0"
-source = "git+https://gitlab.com/vauchi/core.git?tag=v0.95.0#dd78641a2f19e1640d5af8c6597f31e84bf2401e"
+version = "0.96.1"
+source = "git+https://gitlab.com/vauchi/core.git?tag=v0.96.1#fea897f8f1483aa857fcb9d2cd9ee91ba8db7e5d"
 dependencies = [
  "base64",
  "hex",
@@ -1716,14 +1716,26 @@ dependencies = [
  "subtle",
  "thiserror",
  "tracing",
+ "vauchi-contract",
  "vauchi-core",
  "zeroize",
 ]
 
 [[package]]
+name = "vauchi-contract"
+version = "0.95.1"
+source = "git+https://gitlab.com/vauchi/contract.git?tag=v0.95.1#097757f7dcc0ee969bb3bdc57302614dc7248e1e"
+dependencies = [
+ "serde",
+ "serde_json",
+ "thiserror",
+ "zeroize",
+]
+
+[[package]]
 name = "vauchi-core"
-version = "0.95.0"
-source = "git+https://gitlab.com/vauchi/core.git?tag=v0.95.0#dd78641a2f19e1640d5af8c6597f31e84bf2401e"
+version = "0.96.1"
+source = "git+https://gitlab.com/vauchi/core.git?tag=v0.96.1#fea897f8f1483aa857fcb9d2cd9ee91ba8db7e5d"
 dependencies = [
  "argon2",
  "base64",
@@ -1752,6 +1764,7 @@ dependencies = [
  "unicode-normalization",
  "url",
  "uuid",
+ "vauchi-contract",
  "vauchi-protocol",
  "x25519-dalek",
  "zeroize",
@@ -1759,8 +1772,8 @@ dependencies = [
 
 [[package]]
 name = "vauchi-protocol"
-version = "0.95.0"
-source = "git+https://gitlab.com/vauchi/core.git?tag=v0.95.0#dd78641a2f19e1640d5af8c6597f31e84bf2401e"
+version = "0.96.1"
+source = "git+https://gitlab.com/vauchi/core.git?tag=v0.96.1#fea897f8f1483aa857fcb9d2cd9ee91ba8db7e5d"
 dependencies = [
  "serde",
  "serde_json",
