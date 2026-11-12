@@ -181,7 +181,7 @@ test:unit:
     - npm test
   tags: [linux]
 
-# Coverage: vitest with v8 provider (main merges only)
+# Coverage: main plus MR changes to the coverage configuration itself.
 coverage:unit:
   extends: .verified-fetch-script
   stage: test
@@ -206,7 +206,9 @@ coverage:unit:
     - npm ci
     - npx vitest run --coverage --coverage.reporter=cobertura
       --coverage.reportsDirectory=coverage
-    - .vauchi-scripts/ci/push-coverage.sh coverage/cobertura-coverage.xml "web-demo" || true
+    - |
+      ./.vauchi-scripts/ci/push-coverage.sh coverage/cobertura-coverage.xml "web-demo" \
+        || echo "WARNING: web-demo coverage metrics were not pushed"
   coverage: '/All files[^|]*\|[^|]*\s+([\d.]+)/'
   artifacts:
     when: always
@@ -218,7 +220,8 @@ coverage:unit:
   tags: [linux]
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-      when: never
+      changes:
+        - .gitlab-ci.yml
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
 pages:
