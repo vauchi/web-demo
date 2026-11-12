@@ -185,15 +185,28 @@ test:unit:
 coverage:unit:
   extends: .verified-fetch-script
   stage: test
-  variables:
-    FETCH_SCRIPT_PATH: "scripts/ci/push-coverage.sh"
-    FETCH_SCRIPT_OUTPUT: "push-coverage.sh"
-    FETCH_SCRIPT_SHA256: "58321b90bddbf7c28939181de38ffd9f574a416cac12c29c726b470acbbdcfef"
+  before_script:
+    - mkdir -p .vauchi-scripts/ci .vauchi-scripts/lib
+    - |
+      export FETCH_SCRIPT_PATH="scripts/ci/push-coverage.sh"
+      export FETCH_SCRIPT_OUTPUT=".vauchi-scripts/ci/push-coverage.sh"
+      export FETCH_SCRIPT_SHA256="c0921efc2e683b79c2ef79edd8505b6695b10e7cb2d5ed11bff1306d1a5b4f67"
+    - !reference [.verified-fetch-script, before_script]
+    - |
+      export FETCH_SCRIPT_PATH="scripts/ci/pushgateway-push.sh"
+      export FETCH_SCRIPT_OUTPUT=".vauchi-scripts/ci/pushgateway-push.sh"
+      export FETCH_SCRIPT_SHA256="ff1f828b70e5469c95c7a9a3712675a525372a8749c5c04ce375ac34b3ff7777"
+    - !reference [.verified-fetch-script, before_script]
+    - |
+      export FETCH_SCRIPT_PATH="scripts/lib/common.sh"
+      export FETCH_SCRIPT_OUTPUT=".vauchi-scripts/lib/common.sh"
+      export FETCH_SCRIPT_SHA256="3bb8a15e027d6dd923fb08026afa3bf1b0addd4b0bed699ad0b6f6381c686573"
+    - !reference [.verified-fetch-script, before_script]
   script:
     - npm ci
     - npx vitest run --coverage --coverage.reporter=cobertura
       --coverage.reportsDirectory=coverage
-    - ./push-coverage.sh coverage/cobertura-coverage.xml "web-demo" || true
+    - .vauchi-scripts/ci/push-coverage.sh coverage/cobertura-coverage.xml "web-demo" || true
   coverage: '/All files[^|]*\|[^|]*\s+([\d.]+)/'
   artifacts:
     when: always
