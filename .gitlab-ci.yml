@@ -56,7 +56,9 @@ stages:
   - security
   - deploy
 
-# Dependency audit gate — blocks MRs on moderate+ npm advisories.
+# Dependency audit gate — blocks MRs on moderate+ npm advisories. The only
+# exception is the dev-only GHSA-fc5q-39xc-vjpf chain until 2026-12-18;
+# production and all other advisories remain fatal (maintainer-approved).
 audit:deps:
   stage: lint
   image: ${CI_DEPENDENCY_PROXY_GROUP_IMAGE_PREFIX}/node:20-slim
@@ -64,7 +66,7 @@ audit:deps:
   needs: []
   script:
     - npm ci
-    - npm audit --audit-level=moderate
+    - node ci/audit-deps.js
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
