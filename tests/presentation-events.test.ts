@@ -82,6 +82,7 @@ describe("presentation events", () => {
         available_height: 900,
         input_modes: ["touch", "keyboard"],
         motion: "reduced",
+        pinned_actions: true,
       },
     });
   });

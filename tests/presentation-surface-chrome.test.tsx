@@ -163,3 +163,57 @@ describe("the context bar retired into the surface's own chrome (vauchi/private#
     expect(noBarRoot.querySelectorAll("button")).toHaveLength(0);
   });
 });
+
+describe("a decision Core pins under the content (vauchi/private#1304)", () => {
+  it("draws the pinned actions in Core's order, after the content and before the primary action", () => {
+    const { root, events } = mount({
+      back: null,
+      navigation: null,
+      primary: action("primary", "Done"),
+      secondary: null,
+      pinned: [
+        action("pinned.0", "Yes, reconnect Bob"),
+        action("pinned.1", "No, stop the exchange"),
+      ],
+    });
+
+    const pinned = [
+      ...root.querySelectorAll<HTMLButtonElement>(".surface-pinned button"),
+    ];
+    expect(pinned.map((button) => button.textContent)).toEqual([
+      "Yes, reconnect Bob",
+      "No, stop the exchange",
+    ]);
+
+    const group = root.querySelector(".surface-pinned");
+    const primary = root.querySelector(".surface-primary");
+    expect(group?.previousElementSibling?.classList).toContain("presentation-nodes");
+    expect(group?.nextElementSibling).toBe(primary);
+
+    pinned[1]?.click();
+    expect(events).toEqual([
+      { ActionActivated: { surface_id: "detail", interaction_id: "pinned.1" } },
+    ]);
+  });
+
+  it("draws no group for a bar without one, which is every bar of an older Core", () => {
+    const { root } = mount({
+      back: null,
+      navigation: null,
+      primary: action("primary", "Done"),
+      secondary: null,
+    });
+    expect(root.querySelector(".surface-pinned")).toBeNull();
+
+    dispose?.();
+    document.body.innerHTML = "";
+    const { root: emptyRoot } = mount({
+      back: null,
+      navigation: null,
+      primary: null,
+      secondary: null,
+      pinned: [],
+    });
+    expect(emptyRoot.querySelector(".surface-pinned")).toBeNull();
+  });
+});
