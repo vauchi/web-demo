@@ -126,6 +126,24 @@ export function PresentationSurface(props: Props) {
           )}
         </For>
       </div>
+      <Show when={props.bar?.pinned?.length}>
+        <div class="surface-pinned">
+          <For each={props.bar?.pinned}>
+            {(action) => (
+              <button
+                type="button"
+                class="surface-pinned-button"
+                disabled={!action.enabled}
+                data-presentation-id={action.interaction_id}
+                aria-label={action.accessibility_label}
+                onClick={() => activateAction(action)}
+              >
+                {action.label}
+              </button>
+            )}
+          </For>
+        </div>
+      </Show>
       <Show when={props.bar?.primary}>
         {(action) => (
           <div class="surface-primary">

@@ -544,6 +544,42 @@ summary:focus-visible {
   background: var(--color-bg-secondary);
 }
 
+/* Core's pinned group: under the content and in view however far the
+   content scrolls (vauchi/private#1304). */
+.surface-pinned {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--surface-space-small);
+  padding-top: var(--surface-space-medium);
+  background: var(--color-bg-secondary);
+}
+
+/* Above a primary button that is itself held at the bottom edge. */
+.presentation-layout-fixed .surface-pinned:has(+ .surface-primary),
+.presentation-layout-pinned .surface-pinned:has(+ .surface-primary) {
+  bottom: calc(56px + var(--surface-space-medium));
+}
+
+/* No filled style: no answer reads as the suggested one. */
+.surface-pinned-button {
+  width: 100%;
+  min-height: 56px;
+  padding: var(--spacing-xs) var(--spacing-md);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--radius-md);
+  background: var(--color-bg-primary);
+  color: var(--color-accent);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.surface-pinned-button:disabled {
+  cursor: default;
+  opacity: 0.45;
+}
+
 .surface-primary-button {
   width: 100%;
   min-height: 56px;

@@ -78,5 +78,8 @@ export const environmentChanged = (
     available_height: Math.max(0, Math.round(availableHeight)),
     input_modes: inputModes,
     motion: reducedMotion ? "reduced" : "full",
+    // This shell keeps the bar's pinned group in view; Core pins nothing
+    // for a shell that does not say so (vauchi/private#1304).
+    pinned_actions: true,
   },
 });

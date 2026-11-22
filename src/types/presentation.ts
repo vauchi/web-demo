@@ -30,6 +30,11 @@ export interface ContextBar {
   secondary: ActionSpec | null;
   /** Explains the surface (vauchi/private#479); absent from an older Core. */
   info?: ActionSpec | null;
+  /**
+   * A decision kept in view under the content (vauchi/private#1304);
+   * left out when empty, and by a Core that predates the slot.
+   */
+  pinned?: ActionSpec[];
 }
 
 export type OverlayKind = "navigation" | "action_menu" | "information";
@@ -146,7 +151,7 @@ export type PresentationEvent =
   | { InputFocusEnded: { surface_id: SurfaceId; binding_id: BindingId } }
   | { BackRequested: { surface_id: SurfaceId } }
   | { OverlayDismissed: { surface_id: SurfaceId; kind: OverlayKind } }
-  | { PresentationEnvironmentChanged: { available_width: number; available_height: number; input_modes: InputMode[]; motion: MotionPreference } };
+  | { PresentationEnvironmentChanged: { available_width: number; available_height: number; input_modes: InputMode[]; motion: MotionPreference; pinned_actions: boolean } };
 
 export type PresentationCommand =
   | { ReplaceSurface: { surface: SurfaceSpec } }
