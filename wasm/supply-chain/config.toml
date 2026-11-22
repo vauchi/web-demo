@@ -168,6 +168,10 @@ criteria = "safe-to-deploy"
 version = "1.1.9"
 criteria = "safe-to-deploy"
 
+[[exemptions.form_urlencoded]]
+version = "1.2.3"
+criteria = "safe-to-deploy"
+
 [[exemptions.g2gen]]
 version = "1.2.2"
 criteria = "safe-to-deploy"
@@ -505,7 +509,7 @@ version = "0.6.4"
 criteria = "safe-to-deploy"
 
 [[exemptions.url]]
-version = "2.5.8"
+version = "2.5.9"
 criteria = "safe-to-deploy"
 
 [[exemptions.urlencoding]]
